@@ -30,8 +30,6 @@ public class ReadExample
 				// Loop through frames and look for minimum and maximum value
 				for (int s=0 ; s<framesRead * numChannels ; s++)
 				{
-					System.out.println(buffer[s]);
-					
 					if (buffer[s] > max) max = buffer[s];
 					if (buffer[s] < min) min = buffer[s];
 				}
