@@ -1,4 +1,4 @@
-// Wav file IO class
+ // Wav file IO class
 // A.Greensted
 // http://www.labbookpages.co.uk
 
@@ -8,7 +8,14 @@
 
 // Version 1.0
 
-import java.io.*;
+package wenzel.paul.speechsynthesis.wav;
+
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 
 public class WavFile
 {

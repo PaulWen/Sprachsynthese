@@ -1,3 +1,6 @@
+package wenzel.paul.speechsynthesis.wav;
+
+
 public class WavFileException extends Exception
 {
 	public WavFileException()

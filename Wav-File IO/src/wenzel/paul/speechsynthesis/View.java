@@ -1,14 +1,14 @@
+package wenzel.paul.speechsynthesis;
+
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -22,28 +22,22 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import wenzel.paul.speechsynthesis.wav.WavFile;
+
 public class View extends JFrame implements ActionListener, ChangeListener {
 	
 /////////////////////////////////////////////Datenfelder deklarieren////////////////////////////////////////////
 	
-	private Image icon;
-	private Icon startBild;
-	
-	private double[] values;
-	
 	private JLabel zoomLabel;
 	private JSpinner zoomSchalter;
 	private JButton loadWavFileButton;
-	private JFileChooser dateiManager;
+	private JFileChooser fileManager;
 	
 	private JScrollPane scrollPane;
-	private JPanel labyrinthPanel;
+	private DrawPanel drawPanel;
+
 	
-	private String labyrinthDateiPfad;
-	
-	private DrawPanel zeichenflaeche;
-	
-	
+	private double[] values;
 	
 /////////////////////////////////////////////Konstruktor///////////////////////////////////////////////////////
 
@@ -51,24 +45,9 @@ public class View extends JFrame implements ActionListener, ChangeListener {
 	 * Konstruktor der Klasse View
 	 */
 	public View() {
-		//Bilder Konfigurieren
-		icon =  new ImageIcon("roboter.png").getImage();
-		startBild = new ImageIcon("labyrinth.jpg");
 		
-		//Panels Konfigurieren
-		labyrinthPanel = new JPanel(); // hier kommt das Labyrinth rein
-		labyrinthPanel.setBackground(Color.GRAY);
-		scrollPane = new JScrollPane(labyrinthPanel); // Hier kommt das "labyrinthPanel" rein,
-													  // damit man es wenn nötig scrollen kann.
-		JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 5));
-		
-		
-		//Labyrinth Konfigurieren
-		
-		values = new double[500];
-		int numValues = 0;
-		try
-		{
+		//WAV-Datei öffnen Konfigurieren
+		try {
 			// Open the wav file specified as the first argument
 			WavFile wavFile = WavFile.openWavFile(new File("Test.wav"));
 
@@ -85,20 +64,19 @@ public class View extends JFrame implements ActionListener, ChangeListener {
 			double min = Double.MAX_VALUE;
 			double max = Double.MIN_VALUE;
 
-			do
-			{
+			values = new double[(int)wavFile.getNumFrames()];
+			int i = 0;
+			do {
 				// Read frames into buffer
 				framesRead = wavFile.readFrames(buffer, 100);
 
 				// Loop through frames and look for minimum and maximum value
-				for (int s=0 ; s<framesRead * numChannels ; s += 2)
-				{
-					values[numValues++] = buffer[s];
+				for (int s = 0; s < framesRead * numChannels ; s++) {
+					values[i++] = buffer[s];
 					if (buffer[s] > max) max = buffer[s];
 					if (buffer[s] < min) min = buffer[s];
 				}
-			}
-			while (framesRead != 0);
+			} while (framesRead != 0);
 
 			// Close the wavFile
 			wavFile.close();
@@ -109,9 +87,18 @@ public class View extends JFrame implements ActionListener, ChangeListener {
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			System.out.println("hi");
 		}
 		
+		//Panels Konfigurieren
+		System.out.println(values[2]);
+		drawPanel = new DrawPanel(Color.white, Color.green, Color.black, 4, values);
+		
+		scrollPane = new JScrollPane(drawPanel); // Hier kommt das "labyrinthPanel" rein,
+													  // damit man es wenn nötig scrollen kann.
+		
+		
+		
+		JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 5));		
 		
 		//Zoom Konfigurieren
 		JPanel zoomPanel = new JPanel(new FlowLayout());
@@ -129,8 +116,8 @@ public class View extends JFrame implements ActionListener, ChangeListener {
 		optionsPanel.add(loadWavFileButton);
 		
 		//FileChooser Konfigurieren
-		dateiManager = new JFileChooser();
-		dateiManager.setFileFilter(new FileFilter() {
+		fileManager = new JFileChooser();
+		fileManager.setFileFilter(new FileFilter() {
 			@Override
 			public String getDescription() {
 				return "*., *.txt, *.TXT";
@@ -147,19 +134,10 @@ public class View extends JFrame implements ActionListener, ChangeListener {
 			}
 		});
 		
-		//Strings Konfigurieren
-		labyrinthDateiPfad = "";
-		
-		zeichenflaeche = new DrawPanel(Color.green, labyrinthPanel.getSize().width, labyrinthPanel.getSize().height, 4, 4, values);
-		
-		labyrinthPanel.add(zeichenflaeche);
-		
 		//JFrame Konfigurieren
-		setIconImage(icon);
 		setLayout(new BorderLayout());
-		setTitle("Turn90");
-		setSize(625, 700);
-		setMinimumSize(new Dimension(625, 500));
+		setTitle("WAV-File Analyser");
+		setSize(500, 500);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
@@ -168,7 +146,6 @@ public class View extends JFrame implements ActionListener, ChangeListener {
 		add(optionsPanel, BorderLayout.SOUTH);
 						
 		setVisible(true);
-		
 	}
 	
 /////////////////////////////////////////////geerbte Methoden/////////////////////////////////////////////////
@@ -178,14 +155,14 @@ public class View extends JFrame implements ActionListener, ChangeListener {
 		
 		if (actionCommand.equals("ladeLabyrinthButton")) {
 			//Datei Manager öffnen und Statusmeldung abspeichern
-			int status = dateiManager.showOpenDialog(this);
+			int status = fileManager.showOpenDialog(this);
 			//wenn eine Datei ausgewählt wurde und es kein Problem gab
 			if (status == JFileChooser.APPROVE_OPTION) {
-				//wenn die Datei auf .txt oder .TXT endet (=gültig)
-				if (dateiManager.getSelectedFile().getName().endsWith(".txt") ||
-					dateiManager.getSelectedFile().getName().endsWith(".TXT")) {
+				//wenn die Datei auf .wav oder .WAV endet (=gültig)
+				if (fileManager.getSelectedFile().getName().endsWith(".wav") ||
+					fileManager.getSelectedFile().getName().endsWith(".WAV")) {
 					
-					labyrinthDateiPfad = dateiManager.getSelectedFile().getAbsolutePath();
+					String wavFilePath = fileManager.getSelectedFile().getAbsolutePath();
 					
 //					//neue Labyrinth Datei Laden
 //					Dimension aktuelleFramegroesse = getSize();
@@ -197,7 +174,7 @@ public class View extends JFrame implements ActionListener, ChangeListener {
 					
 				} else { // wenn die Datei keine TXT-Datei ist (=ungültig)
 					//Fehlermeldung
-					JOptionPane.showMessageDialog(this, "Die Datei muss eine TXT-Datei sein!", "Falscher Dateityp!",
+					JOptionPane.showMessageDialog(this, "Die Datei muss eine WAV-Datei sein!", "Falscher Dateityp!",
 												  JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -230,6 +207,10 @@ public class View extends JFrame implements ActionListener, ChangeListener {
 		repaint();
 		pack();
 		setSize(aktuelleFramegroesse);
+		
+		System.out.println(scrollPane.getViewport().getViewRect().toString() + "   HAAAAAALO");
+		System.out.println(scrollPane.getViewport().getViewPosition().toString() + "   HAAAAAALO");
+		System.out.println(scrollPane.getSize().toString() + "   HAAAAAALO");
 	}
 	
 	

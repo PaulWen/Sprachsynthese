@@ -1,4 +1,6 @@
-import java.io.*;
+package wenzel.paul.speechsynthesis.wav;
+
+import java.io.File;
 
 public class WriteExample
 {
@@ -13,7 +15,7 @@ public class WriteExample
 			long numFrames = (long)(duration * sampleRate);
 
 			// Create a wav file with the name specified as the first argument
-			WavFile wavFile = WavFile.newWavFile(new File("Test.wav"), 2, numFrames, 16, sampleRate);
+			WavFile wavFile = WavFile.newWavFile(new File("Test.wav"), 1, numFrames, 16, sampleRate);
 
 			// Create a buffer of 100 frames
 			double[][] buffer = new double[2][100];
@@ -44,6 +46,7 @@ public class WriteExample
 		}
 		catch (Exception e)
 		{
+			e.printStackTrace();
 			System.err.println(e);
 		}
 	}

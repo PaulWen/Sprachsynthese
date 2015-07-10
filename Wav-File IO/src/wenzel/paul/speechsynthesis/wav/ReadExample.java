@@ -1,4 +1,6 @@
-import java.io.*;
+package wenzel.paul.speechsynthesis.wav;
+
+import java.io.File;
 
 public class ReadExample
 {
