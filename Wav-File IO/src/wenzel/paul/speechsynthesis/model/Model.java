@@ -41,7 +41,7 @@ public class Model implements ViewModel {
 		// WAV-Datei öffnen
 		try {
 			// Open the wav file specified as the first argument
-			WavFile wavFile = WavFile.openWavFile(new File("Test.wav"));
+			WavFile wavFile = WavFile.openWavFile(new File("res/wav_examples/Test.wav"));
 
 			// Display information about the wav file
 			wavFile.display();

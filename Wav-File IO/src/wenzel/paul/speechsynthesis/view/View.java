@@ -43,7 +43,7 @@ public class View extends JFrame {
 		drawPanel = new DrawWavPanel(model);
 		scrollPane = new JScrollPane(drawPanel);
 				
-		JPanel settingsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 50, 5));		
+		JPanel settingsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));		
 		
 		//Zoom Konfigurieren
 //		JPanel zoomPanel = new JPanel(new FlowLayout());

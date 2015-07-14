@@ -175,8 +175,7 @@ public class WavFile
 		return wavFile;
 	}
 
-	public static WavFile openWavFile(File file) throws IOException, WavFileException
-	{
+	public static WavFile openWavFile(File file) throws IOException, WavFileException {
 		// Instantiate new Wavfile and store the file reference
 		WavFile wavFile = new WavFile();
 		wavFile.file = file;
