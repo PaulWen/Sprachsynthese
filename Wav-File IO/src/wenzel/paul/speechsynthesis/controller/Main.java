@@ -1,4 +1,4 @@
-package vorlagen;
+package wenzel.paul.speechsynthesis.controller;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;

@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 
-import vorlagen.Main.OpenWavFileListener;
+import wenzel.paul.speechsynthesis.controller.Main.OpenWavFileListener;
 import wenzel.paul.speechsynthesis.model.ViewModel;
 
 public class View extends JFrame {
