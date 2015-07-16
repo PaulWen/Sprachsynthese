@@ -2,8 +2,9 @@ package wenzel.paul.speechsynthesis.view;
 
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -13,7 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 
-import wenzel.paul.speechsynthesis.controller.Main.OpenWavFileListener;
+import wenzel.paul.speechsynthesis.controller.ViewListener;
 import wenzel.paul.speechsynthesis.model.ViewModel;
 
 public class View extends JFrame {
@@ -21,6 +22,7 @@ public class View extends JFrame {
 /////////////////////////////////////////////Datenfelder deklarieren////////////////////////////////////////////
 	
 	private ViewModel model;
+	private ViewListener listener;
 	
 	private JLabel zoomLabel;
 	private JSpinner zoomSchalter;
@@ -35,9 +37,9 @@ public class View extends JFrame {
 	/**
 	 * Konstruktor der Klasse View
 	 */
-	public View(ViewModel model, OpenWavFileListener openWavFileListener) {
+	public View(ViewModel model, final ViewListener listener) {
 		this.model = model;
-		
+		this.listener = listener;
 		
 		//Panels Konfigurieren
 		drawPanel = new DrawWavPanel(model);
@@ -57,7 +59,13 @@ public class View extends JFrame {
 		//Buttons Konfigurieren
 		loadWavFileButton = new JButton("lade WAV-Datei");
 		loadWavFileButton.setActionCommand("ladeLabyrinthButton");
-		loadWavFileButton.addActionListener(openWavFileListener);
+		loadWavFileButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				listener.openWavFile();
+			}
+		});
+		
 		settingsPanel.add(loadWavFileButton);
 		
 		
