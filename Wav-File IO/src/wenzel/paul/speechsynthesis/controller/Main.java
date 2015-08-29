@@ -58,7 +58,7 @@ public class Main implements ViewListener {
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
 	private void init() {
-		// ein bisheriges Fenster schließen
+		// ein bisheriges Fenster schlieÃŸen
 		if (view != null) {
 			view.dispose();
 		}
@@ -69,11 +69,11 @@ public class Main implements ViewListener {
 	}
 	
 	/**
-	 * Die Methode öffnet einen FileChooser über welchen eine .WAV-Datei ausgewählt werden kann.
-	 * Die Ausgewählte .WAV-Datei wird anschließend in ein {@link Model} geladen.
+	 * Die Methode ï¿½ffnet einen FileChooser ï¿½ber welchen eine .WAV-Datei ausgewï¿½hlt werden kann.
+	 * Die Ausgewï¿½hlte .WAV-Datei wird anschlieï¿½end in ein {@link Model} geladen.
 	 * 
-	 * @return	das {@link Model} mit den Daten der gewünschten .WAV-Datei <br>
-	 * 		  	falls null zurückgegeben wird, so gab es einen Fehler!
+	 * @return	das {@link Model} mit den Daten der gewï¿½nschten .WAV-Datei <br>
+	 * 		  	falls null zurï¿½ckgegeben wird, so gab es einen Fehler!
 	 */
 	private Model initNewModel() {
 		Model model = null;
@@ -99,17 +99,17 @@ public class Main implements ViewListener {
 		
 		int status = fileChooser.showOpenDialog(view);
 		
-		//wenn eine Datei ausgewählt wurde und es kein Problem gab
+		//wenn eine Datei ausgewï¿½hlt wurde und es kein Problem gab
 		if (status == JFileChooser.APPROVE_OPTION) {
-			//wenn die Datei auf .wav oder .WAV endet (=gültig)
+			//wenn die Datei auf .wav oder .WAV endet (=gï¿½ltig)
 			if (fileChooser.getSelectedFile().getName().endsWith(".wav") ||
 					fileChooser.getSelectedFile().getName().endsWith(".WAV")) {
 				
 				String wavFilePath = fileChooser.getSelectedFile().getAbsolutePath();
 				
-				// WAV-Datei öffnen
+				// WAV-Datei ï¿½ffnen
 				try {
-					System.out.println("///////////////NEUE DATEI ÖFFNEN///////////////");
+					System.out.println("///////////////NEUE DATEI ï¿½FFNEN///////////////");
 					// Open the wav file specified as the first argument
 					WavFile wavFile = WavFile.openWavFile(new File(fileChooser.getSelectedFile().getAbsolutePath()));
 					
@@ -156,7 +156,7 @@ public class Main implements ViewListener {
 					exception.printStackTrace();
 				}
 				
-			} else { // wenn die Datei keine TXT-Datei ist (=ungültig)
+			} else { // wenn die Datei keine TXT-Datei ist (=ungï¿½ltig)
 				//Fehlermeldung
 				JOptionPane.showMessageDialog(view, "Die Datei muss eine WAV-Datei sein!", "Falscher Dateityp!",
 						JOptionPane.ERROR_MESSAGE);
