@@ -123,6 +123,8 @@ public class DrawWavPanel extends JPanel {
 			// Punkt berechnen
 			points.add(new Point((int)(((double)getWidth() / (double)model.getWavFileValues().length) * i - (double)model.getPointDiameter() / 2), (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFileValues()[i] - (double)model.getPointDiameter() / 2)));
 		}
+		
+		System.out.println(model.getWavFileValues().length);
 	}
 	
 	/**

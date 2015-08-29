@@ -55,14 +55,18 @@ public class PlayWav {
 
         sourceLine.start();
 
+        int i = 0;
         int nBytesRead = 0;
-        byte[] abData = new byte[BUFFER_SIZE];
+        byte[] abData = new byte[2]; // Bytes per Sample sind 2!
         while (nBytesRead != -1) {
             try {
                 nBytesRead = audioStream.read(abData, 0, abData.length);
                 for (byte b : abData) {
-                	System.out.println(b);
+                	i++;
+//                	System.out.println(b);
+                	
                 }
+                System.out.println(i);
             } catch (IOException e) {
                 e.printStackTrace();
             }
