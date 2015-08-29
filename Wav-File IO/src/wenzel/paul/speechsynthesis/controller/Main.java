@@ -7,6 +7,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
+import wenzel.paul.speechsynthesis.controller.listener.ViewListener;
 import wenzel.paul.speechsynthesis.model.Model;
 import wenzel.paul.speechsynthesis.view.View;
 import wenzel.paul.speechsynthesis.wav.WavFile;
@@ -20,6 +21,12 @@ import wenzel.paul.speechsynthesis.wav.WavFile;
  */
 public class Main implements ViewListener {
 	
+/////////////////////////////////////////////////Konstanten/////////////////////////////////////////////////
+	/** die Anzahl an Pixel pro Frame einer Datei, welche das Fenster breit sein soll */
+	private final float WINDOW_WIDTH_PER_FRAME = 1.0f;
+
+	private String WAV_FILE_PATH = "C:/Users/Wenze/Desktop/Java Workspace/Sprachsynthese/Wav-File IO/res";
+
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 	
 	private Model model;
@@ -31,9 +38,7 @@ public class Main implements ViewListener {
 	 * Der Konstruktor der Klasse "Main". 
 	 */
 	public Main() {
-		//Datenfelder initialisieren
-		model = new Model(200000, 500, 4, Color.white, Color.green, Color.black);
-		view = new View(model, this);
+		init();
 	}
 	
 	
@@ -47,8 +52,34 @@ public class Main implements ViewListener {
 ///////////////////////////////////////////////geerbte Methoden//////////////////////////////////////////////
 	
 	public void openWavFile() {
+		init();
+	}
+
+//////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
+	
+	private void init() {
+		// ein bisheriges Fenster schließen
+		if (view != null) {
+			view.dispose();
+		}
+		
+		//Datenfelder initialisieren
+		model = initNewModel();
+		view = new View(model, this);
+	}
+	
+	/**
+	 * Die Methode öffnet einen FileChooser über welchen eine .WAV-Datei ausgewählt werden kann.
+	 * Die Ausgewählte .WAV-Datei wird anschließend in ein {@link Model} geladen.
+	 * 
+	 * @return	das {@link Model} mit den Daten der gewünschten .WAV-Datei <br>
+	 * 		  	falls null zurückgegeben wird, so gab es einen Fehler!
+	 */
+	private Model initNewModel() {
+		Model model = null;
+		
 		//FileChooser Konfigurieren
-		JFileChooser fileChooser = new JFileChooser();
+		JFileChooser fileChooser = new JFileChooser(WAV_FILE_PATH);
 		fileChooser.setFileFilter(new FileFilter() {
 			@Override
 			public String getDescription() {
@@ -117,7 +148,8 @@ public class Main implements ViewListener {
 					
 					
 					
-					// speichere WAV-Werte im Model
+					// neues Model anlegen
+					model = new Model(wavFileValues, (int)Math.ceil(wavFile.getNumFrames() * WINDOW_WIDTH_PER_FRAME), 500, 4, Color.white, Color.green, Color.black);
 					model.setWavFileValues(wavFileValues);
 				}
 				catch (Exception exception) {
@@ -130,9 +162,9 @@ public class Main implements ViewListener {
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}
+		
+		return model;
 	}
-
-//////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
 	public static void main(String[] args) {
 		new Main();

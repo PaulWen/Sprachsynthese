@@ -63,8 +63,6 @@ public class PlayWav {
                 nBytesRead = audioStream.read(abData, 0, abData.length);
                 for (byte b : abData) {
                 	i++;
-//                	System.out.println(b);
-                	
                 }
                 System.out.println(i);
             } catch (IOException e) {

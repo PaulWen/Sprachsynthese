@@ -1,3 +1,7 @@
 TODOs:
 
-Das DrawWavPanel berechnet diePunkte nicht neu, wenn eine neue Datei geladen wurde (erst nachdem sich die Fenstergröße veränder (und größer ist als MIN) geschrieht ein Update!)
+Zoomen ermöglichen!
+
+PlayBackfunktion einbauen
+	1. View  mit Knöüfen aufbauen
+	2. Player anbinden, welcher aus dem Model wiedergibt

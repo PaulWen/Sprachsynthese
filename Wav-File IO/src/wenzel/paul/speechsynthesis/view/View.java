@@ -2,20 +2,15 @@ package wenzel.paul.speechsynthesis.view;
 
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
 
-import wenzel.paul.speechsynthesis.controller.ViewListener;
+import wenzel.paul.speechsynthesis.controller.listener.ViewListener;
 import wenzel.paul.speechsynthesis.model.ViewModel;
+import wenzel.paul.speechsynthesis.view.panels.DrawWavPanel;
+import wenzel.paul.speechsynthesis.view.panels.controll.WavFileControllPanel;
 
 public class View extends JFrame {
 	
@@ -24,13 +19,12 @@ public class View extends JFrame {
 	private ViewModel model;
 	private ViewListener listener;
 	
-	private JLabel zoomLabel;
-	private JSpinner zoomSchalter;
-	private JButton loadWavFileButton;
-	private JFileChooser fileManager;
-	
 	private JScrollPane scrollPane;
+	private JTabbedPane tabbedPane;
+	
 	private DrawWavPanel drawPanel;
+	
+	private WavFileControllPanel wavFileControllPanel;
 
 /////////////////////////////////////////////Konstruktor///////////////////////////////////////////////////////
 
@@ -44,41 +38,23 @@ public class View extends JFrame {
 		//Panels Konfigurieren
 		drawPanel = new DrawWavPanel(model);
 		scrollPane = new JScrollPane(drawPanel);
-				
-		JPanel settingsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));		
 		
-		//Zoom Konfigurieren
-//		JPanel zoomPanel = new JPanel(new FlowLayout());
-//		zoomLabel = new JLabel("Zoom von 1 - 1000 Pixel^2 pro Rasterquadrat: ");
-//		zoomPanel.add(zoomLabel);
-//		zoomSchalter = new JSpinner(new SpinnerNumberModel(7, 1, 1000, 1));
-//		zoomSchalter.addChangeListener(this);
-//		zoomPanel.add(zoomSchalter);
-//		settingsPanel.add(zoomPanel);
+		wavFileControllPanel = new WavFileControllPanel(listener);
 		
-		//Buttons Konfigurieren
-		loadWavFileButton = new JButton("lade WAV-Datei");
-		loadWavFileButton.setActionCommand("ladeLabyrinthButton");
-		loadWavFileButton.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				listener.openWavFile();
-			}
-		});
-		
-		settingsPanel.add(loadWavFileButton);
-		
-		
+		//JTappedPane erstellen
+		tabbedPane = new JTabbedPane();
+		tabbedPane.addTab("Datei", null, wavFileControllPanel, "Laden einer WAV-Datei");
+
 		//JFrame Konfigurieren
 		setLayout(new BorderLayout());
 		setTitle("WAV-File Analyser");
-		setSize(500, 500);
+		setSize(500, 800);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 			//Komponenten Hinzufügen
 		add(scrollPane, BorderLayout.CENTER);
-		add(settingsPanel, BorderLayout.SOUTH);
+		add(tabbedPane, BorderLayout.SOUTH);
 						
 		setVisible(true);
 		repaint();
@@ -86,16 +62,7 @@ public class View extends JFrame {
 	
 /////////////////////////////////////////////geerbte Methoden/////////////////////////////////////////////////
 	
-//	public void stateChanged(ChangeEvent e) {
-//		//wenn sich der Wert des ZoomSchalter geändert hat
-//		if (e.getSource() == zoomSchalter) {
-//			Dimension aktuelleFramegroesse = getSize();
-//			labyrinth.zoom((Integer)zoomSchalter.getValue(), (Integer)zoomSchalter.getValue()); // Die Rasterquadratgröße im Labyrinth
-//																								// entsprechend der Nutzereingabe setzen.
-//			frameNeuZeichnen(aktuelleFramegroesse);
-//		}
-//		
-//	}
+
 	
 /////////////////////////////////////////////Methoden////////////////////////////////////////////////////////
 

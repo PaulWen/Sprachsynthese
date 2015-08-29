@@ -1,4 +1,4 @@
-package wenzel.paul.speechsynthesis.view;
+package wenzel.paul.speechsynthesis.view.panels;
 
 import java.awt.Dimension;
 import java.awt.Graphics;

@@ -1,13 +1,13 @@
-package wenzel.paul.speechsynthesis.model;
+package wenzel.paul.speechsynthesis.controller.listener;
 
 /**
- * Das Interface {@link ViewModel} [...]
+ * Das Interface {@link WavFileControllPanelListener} [...]
  * 
  * 
  * @author Paul Wenzel
  *
  */
-public interface ViewModel extends DrawWavPanelModel {
+public interface WavFileControllPanelListener {
 	
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 	
@@ -16,7 +16,6 @@ public interface ViewModel extends DrawWavPanelModel {
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
-	
-	
+	public void openWavFile();
 	
 }
