@@ -1,7 +1,6 @@
 TODOs:
 
-Zoomen ermöglichen!
+WAV-Datei Writer schreiben, welches aus einem WavFileDataObject eine WAV-Datei erstellen kann.
 
 PlayBackfunktion einbauen
-	1. View  mit Knöpfen aufbauen
 	2. Player anbinden, welcher aus dem Model wiedergibt

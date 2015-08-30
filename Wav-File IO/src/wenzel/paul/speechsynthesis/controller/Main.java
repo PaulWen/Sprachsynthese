@@ -2,16 +2,18 @@ package wenzel.paul.speechsynthesis.controller;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.RepaintManager;
 import javax.swing.filechooser.FileFilter;
 
 import wenzel.paul.speechsynthesis.controller.listener.ViewListener;
 import wenzel.paul.speechsynthesis.model.Model;
+import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
+import wenzel.paul.speechsynthesis.util.wav.ReadWavFile;
 import wenzel.paul.speechsynthesis.view.View;
-import wenzel.paul.speechsynthesis.wav.WavFile;
+import wenzel.paul.speechsynthesis.wav.WavFileException;
 
 /**
  * Die Klasse "KlassenVorlage" [...]
@@ -24,8 +26,8 @@ public class Main implements ViewListener {
 	
 /////////////////////////////////////////////////Konstanten/////////////////////////////////////////////////
 	
-	/** die Anzahl an Pixel pro Frame einer Datei, welche das Fenster breit sein soll */
-	private final float WINDOW_WIDTH_PER_FRAME = 1.0f;
+	/** die Anzahl an Pixel pro Frame einer WAV-Datei, welche das Fenster zu beginn breit sein soll */
+	public static final float WINDOW_WIDTH_PER_FRAME = 1.0f;
 
 	/** der Pfad, mit welchem der File-Chooser gestartet wird */
 	private String WAV_FILE_PATH = "C:/Users/Wenze/Desktop/Java Workspace/Sprachsynthese/Wav-File IO/res";
@@ -59,8 +61,7 @@ public class Main implements ViewListener {
 	}
 	
 	public void zoom(float zoomValue) {
-		System.out.println("hi: " + (int)Math.ceil(model.getWavFileValues().length * zoomValue));
-		model.setMinWidth((int)Math.ceil(model.getWavFileValues().length * zoomValue));
+		model.setMinWidth((int)Math.ceil(model.getWavFile().getNumberOfFrames() * zoomValue));
 		view.repaint();
 	}
 	
@@ -118,64 +119,27 @@ public class Main implements ViewListener {
 		
 		int status = fileChooser.showOpenDialog(view);
 		
-		//wenn eine Datei ausgew�hlt wurde und es kein Problem gab
+		//wenn eine Datei ausgewählt wurde und es kein Problem gab
 		if (status == JFileChooser.APPROVE_OPTION) {
-			//wenn die Datei auf .wav oder .WAV endet (=g�ltig)
+			//wenn die Datei auf .wav oder .WAV endet (=gültig)
 			if (fileChooser.getSelectedFile().getName().endsWith(".wav") ||
 					fileChooser.getSelectedFile().getName().endsWith(".WAV")) {
 				
 				String wavFilePath = fileChooser.getSelectedFile().getAbsolutePath();
 				
-				// WAV-Datei �ffnen
+				// WAV-Datei öffnen
 				try {
-					System.out.println("///////////////NEUE DATEI ÖFFNEN///////////////");
-					// Open the wav file specified as the first argument
-					WavFile wavFile = WavFile.openWavFile(new File(fileChooser.getSelectedFile().getAbsolutePath()));
-					
-					// Display information about the wav file
-					wavFile.display();
-					
-					// Get the number of audio channels in the wav file
-					int numChannels = wavFile.getNumChannels();
-					
-					// Create a buffer of 100 frames
-					double[] buffer = new double[100 * numChannels];
-					
-					int framesRead;
-					double min = Double.MAX_VALUE;
-					double max = Double.MIN_VALUE;
-					
-					double[] wavFileValues = new double[(int)wavFile.getNumFrames()];
-					int i = 0;
-					do {
-						// Read frames into buffer
-						framesRead = wavFile.readFrames(buffer, 100);
-						
-						// Loop through frames and look for minimum and maximum value
-						for (int s = 0; s < framesRead * numChannels ; s++) {
-							wavFileValues[i++] = buffer[s];
-							if (buffer[s] > max) max = buffer[s];
-							if (buffer[s] < min) min = buffer[s];
-						}
-					} while (framesRead != 0);
-					
-					// Close the wavFile
-					wavFile.close();
-					
-					// Output the minimum and maximum value
-					System.out.printf("Min: %f, Max: %f\n", min, max);
-					
-					
+					WavFileDataObject wavFile = ReadWavFile.openWavFile(new File(wavFilePath));
 					
 					// neues Model anlegen
-					model = new Model(wavFileValues, (int)Math.ceil(wavFile.getNumFrames() * WINDOW_WIDTH_PER_FRAME), 500, 4, Color.white, Color.green, Color.black);
-					model.setWavFileValues(wavFileValues);
-				}
-				catch (Exception exception) {
-					exception.printStackTrace();
+					model = new Model(wavFile, (int)Math.ceil(wavFile.getNumberOfFrames() * WINDOW_WIDTH_PER_FRAME), 500, 4, Color.white, Color.green, Color.black);
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (WavFileException e) {
+					e.printStackTrace();
 				}
 				
-			} else { // wenn die Datei keine TXT-Datei ist (=ung�ltig)
+			} else { // wenn die Datei keine WAV-Datei ist (=ungültig)
 				//Fehlermeldung
 				JOptionPane.showMessageDialog(view, "Die Datei muss eine WAV-Datei sein!", "Falscher Dateityp!",
 						JOptionPane.ERROR_MESSAGE);

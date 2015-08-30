@@ -2,14 +2,16 @@ package wenzel.paul.speechsynthesis.model;
 
 import java.awt.Color;
 
+import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
+
 public interface DrawWavPanelModel {
 
 	public int getMinWidth();
 	public int getMinHeight();
 	public int getPointDiameter();
 	
-	/** die Werte die als Punkte eingezeichnet werden sollen (komplett verteilt auf die gesammte verfügbare Breite) */
-	public double[] getWavFileValues();
+	/** die Werte die als Punkte eingezeichnet werden sollen (komplett verteilt auf die gesammte verfï¿½gbare Breite) */
+	public WavFileDataObject getWavFile();
 	/** wie vielen Millisekunden die WAV Datei lang ist */
 	public long getWavFileDuration();
 	

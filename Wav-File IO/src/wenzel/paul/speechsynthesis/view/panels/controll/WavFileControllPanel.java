@@ -13,6 +13,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import wenzel.paul.speechsynthesis.controller.Main;
 import wenzel.paul.speechsynthesis.controller.listener.WavFileControllPanelListener;
 
 /**
@@ -50,7 +51,7 @@ public class WavFileControllPanel extends JPanel {
 		});
 		
 			//Zoom Konfigurieren
-		zoomSpinner = new JSpinner(new SpinnerNumberModel(1.0f, 0, 10.0f, 0.1f));
+		zoomSpinner = new JSpinner(new SpinnerNumberModel(Main.WINDOW_WIDTH_PER_FRAME, 0, 10.0f, 0.1f));
 		zoomSpinner.setToolTipText("Zoom-Level");
 		JSpinner.NumberEditor editor = (JSpinner.NumberEditor)zoomSpinner.getEditor();
         DecimalFormat format = editor.getFormat();

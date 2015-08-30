@@ -2,6 +2,8 @@ package wenzel.paul.speechsynthesis.model;
 
 import java.awt.Color;
 
+import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
+
 /**
  * Die Klasse {@link Model} [...]
  * 
@@ -17,7 +19,7 @@ public class Model implements ViewModel {
 	private int minHeight;
 	private int pointDiameter;
 	
-	private double[] wavFileValues;
+	private WavFileDataObject wavFile;
 	private long wavFileDuration;
 	
 	private Color backgroundColor;
@@ -31,7 +33,7 @@ public class Model implements ViewModel {
 	/**
 	 * Der Konstruktor der Klasse {@link Model}. 
 	 */
-	public  Model(double[] wavFileValues, int width, int height, int pointDiameter, Color backgroundColor, Color lineColor, Color pointColor) {
+	public  Model(WavFileDataObject wavFile, int width, int height, int pointDiameter, Color backgroundColor, Color lineColor, Color pointColor) {
 		//Datenfelder initialisieren
 		this.minWidth = width;
 		this.minHeight = height;
@@ -39,7 +41,7 @@ public class Model implements ViewModel {
 		this.backgroundColor = backgroundColor;
 		this.lineColor = lineColor;
 		this.pointColor = pointColor;
-		this.wavFileValues = wavFileValues;
+		this.wavFile = wavFile;
 		
 		wavFileDuration = 0;
 		
@@ -48,6 +50,9 @@ public class Model implements ViewModel {
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
 	
+	public void setMinWidth(int width) {
+		this.minWidth = width;
+	}
 	
 ///////////////////////////////////////////////geerbte Methoden//////////////////////////////////////////////
 	
@@ -63,9 +68,10 @@ public class Model implements ViewModel {
 		return pointDiameter;
 	}
 
-	public double[] getWavFileValues() {
-		return wavFileValues;
+	public WavFileDataObject getWavFile() {
+		return wavFile;
 	}
+	
 	public long getWavFileDuration() {
 		return wavFileDuration;
 	}
@@ -84,42 +90,6 @@ public class Model implements ViewModel {
 
 	public long getCurrentPoint() {
 		return currentPoint;
-	}
-	
-	
-	public void setMinWidth(int width) {
-		this.minWidth = width;
-	}
-	
-	public void setMinHeight(int height) {
-		this.minHeight = height;
-	}
-	
-	public void setPointDiameter(int pointDiameter) {
-		this.pointDiameter = pointDiameter;
-	}
-	
-	public void setWavFileValues(double[] wavFileValues) {
-		this.wavFileValues = wavFileValues;
-	}
-	public void setWavFileDuration(long wavFileDuration) {
-		this.wavFileDuration = wavFileDuration;
-	}
-	
-	public void setBackgroundColor(Color backgroundColor) {
-		this.backgroundColor = backgroundColor;
-	}
-	
-	public void setLineColor(Color lineColor) {
-		this.lineColor = lineColor;
-	}
-	
-	public void setPointColor(Color pointColor) {
-		this.pointColor = pointColor;
-	}
-	
-	public void setCurrentPoint(long currentPoint) {
-		this.currentPoint = currentPoint;
 	}
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////

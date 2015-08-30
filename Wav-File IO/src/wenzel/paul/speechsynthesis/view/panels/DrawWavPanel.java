@@ -124,21 +124,19 @@ public class DrawWavPanel extends JPanel {
 		line = new ArrayList<Point>();
 		points = new ArrayList<Point>();
 		
-		for (int i = 0; i < model.getWavFileValues().length; i++) {
+		for (int i = 0; i < model.getWavFile().getNumberOfFrames(); i++) {
 			// Punkte der Linie berechnen
 			if (i != 0) {
 				//beim ersten Punkt noch keine Linie zeichen
-				line.addAll(line((int)(((double)getWidth() / (double)model.getWavFileValues().length) * (i - 1) - (double)model.getPointDiameter() / 2),
-						         (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFileValues()[i - 1] - (double)model.getPointDiameter() / 2),
-						         (int)(((double)getWidth() / (double)model.getWavFileValues().length) * i - (double)model.getPointDiameter() / 2),
-						         (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFileValues()[i] - (double)model.getPointDiameter() / 2)));
+				line.addAll(line((int)(((double)getWidth() / (double)model.getWavFile().getNumberOfFrames()) * (i - 1) - (double)model.getPointDiameter() / 2),
+						         (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFile().getWavFileValues()[0][i - 1] - (double)model.getPointDiameter() / 2),
+						         (int)(((double)getWidth() / (double)model.getWavFile().getNumberOfFrames()) * i - (double)model.getPointDiameter() / 2),
+						         (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFile().getWavFileValues()[0][i] - (double)model.getPointDiameter() / 2)));
 			}
 			
 			// Punkt berechnen
-			points.add(new Point((int)(((double)getWidth() / (double)model.getWavFileValues().length) * i - (double)model.getPointDiameter() / 2), (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFileValues()[i] - (double)model.getPointDiameter() / 2)));
+			points.add(new Point((int)(((double)getWidth() / (double)model.getWavFile().getNumberOfFrames()) * i - (double)model.getPointDiameter() / 2), (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFile().getWavFileValues()[0][i] - (double)model.getPointDiameter() / 2)));
 		}
-		
-		System.out.println("Punkte:" + model.getWavFileValues().length);
 	}
 	
 	/**

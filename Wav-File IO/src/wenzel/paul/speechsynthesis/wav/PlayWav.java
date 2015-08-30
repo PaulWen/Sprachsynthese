@@ -61,15 +61,13 @@ public class PlayWav {
         while (nBytesRead != -1) {
             try {
                 nBytesRead = audioStream.read(abData, 0, abData.length);
-                for (byte b : abData) {
-                	i++;
-                }
+                i++;
                 System.out.println(i);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             if (nBytesRead >= 0) {
-                @SuppressWarnings("unused")
+//                @SuppressWarnings("unused")
                 int nBytesWritten = sourceLine.write(abData, 0, nBytesRead);
             }
         }
