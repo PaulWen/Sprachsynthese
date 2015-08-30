@@ -8,7 +8,7 @@
 
 // Version 1.0
 
-package wenzel.paul.speechsynthesis.wav;
+package wenzel.paul.speechsynthesis.quellen;
 
 
 import java.io.File;

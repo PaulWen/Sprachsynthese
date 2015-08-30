@@ -11,9 +11,9 @@ import javax.swing.filechooser.FileFilter;
 import wenzel.paul.speechsynthesis.controller.listener.ViewListener;
 import wenzel.paul.speechsynthesis.model.Model;
 import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
+import wenzel.paul.speechsynthesis.quellen.WavFileException;
 import wenzel.paul.speechsynthesis.util.wav.ReadWavFile;
 import wenzel.paul.speechsynthesis.view.View;
-import wenzel.paul.speechsynthesis.wav.WavFileException;
 
 /**
  * Die Klasse "KlassenVorlage" [...]

@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
-import wenzel.paul.speechsynthesis.wav.WavFileException;
+import wenzel.paul.speechsynthesis.quellen.WavFileException;
 
 /**
  * Die Klasse {@link ReadWavFile} dient dem Einlesen einer WAV-Datei in ein {@link WavFileDataObject}.
@@ -326,25 +326,29 @@ public class ReadWavFile {
 	{
 		long[] samples = new long[numberOfFrames * numberOfChannels];
 		
-		
-		// ACHTUNG: Falls eine Datei irgendwann mal zu groß ist und somit nicht mehr in einen einzigen Buffer geladen werden kann,
-		// (weil die ANzahl an Array Plätzte begrenzt ist auf die höchste Integer Zahl)
-		// dann muss der Buffer Dynamisch immer nachgeladen werden! (siehe dafür das Beispiel aus der Quelle)
-		byte[] buffer = new byte[numberOfFrames * numberOfChannels * bytesPerSample]; // Local buffer used for IO
-		int bufferPointer = 0; // Points to the current position in local buffer
-		
-		wavFileInputStream.read(buffer, 0, numberOfFrames * numberOfChannels * bytesPerSample);
-		for (int i = 0; i < samples.length; i++) {
-			for (int j = 0; j < bytesPerSample; j++) {
-				// lese den nächsten Frame aus dem Buffer aus
-				int oneByte = buffer[bufferPointer];
-				if (j < bytesPerSample - 1 || bytesPerSample == 1) {
-					oneByte &= 0xFF;
+		byte[] buffer = new byte[BUFFER_SIZE]; // Local buffer used for IO
+		int sampleNumber = 0;
+		// die komplette WAV-Datei-Daten auslesen
+		int bytesRead= wavFileInputStream.read(buffer, 0, BUFFER_SIZE);
+		while (bytesRead != -1) {
+			// den kompleten Buffer abarbeiten
+			for (int i = 0; i < bytesRead; i += bytesPerSample) {
+				// ein komplettes Sample auslesen
+				for (int j = 0; j < bytesPerSample; j++) {
+					// lese den nächsten Frame aus dem Buffer aus
+					int oneByte = buffer[i + j];
+					if (j < bytesPerSample - 1 || bytesPerSample == 1) {
+						oneByte &= 0xFF;
+					}
+					samples[sampleNumber] += oneByte << (j * 8);
 				}
-				samples[i] += oneByte << (j * 8);
-				
-				bufferPointer++;
+				sampleNumber++;
 			}
+			bytesRead= wavFileInputStream.read(buffer, 0, BUFFER_SIZE);
+		}
+		
+		for (long l : samples) {
+			System.out.println(l);
 		}
 		
 		return samples;
