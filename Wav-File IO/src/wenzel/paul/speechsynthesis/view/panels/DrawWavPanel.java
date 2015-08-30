@@ -28,9 +28,9 @@ public class DrawWavPanel extends JPanel {
 	private DrawWavPanelModel model;
 	
 	// WAV-Graph
-	/** das Array enth‰lt alle Punkte, welche insgesamt eine Linie darstellen, die alle Punkte(Werte) verbindet */
+	/** das Array enth√§lt alle Punkte, welche insgesamt eine Linie darstellen, die alle Punkte(Werte) verbindet */
 	private ArrayList<Point> line;
-	/** das Array enth‰lt alle Punkte, welche sich aus den ¸bergebenen Werten ergeben */
+	/** das Array enth√§lt alle Punkte, welche sich aus den √ºbergebenen Werten ergeben */
 	private ArrayList<Point> points;
 	
 	private Dimension currentSize;
@@ -55,20 +55,34 @@ public class DrawWavPanel extends JPanel {
 
 	@Override
 	public void paint(Graphics g) {
-		// pr¸fen, ob sich die Grˆﬂe vom Panel ver‰ndert HAT
-		if (currentSize.getWidth() != getWidth() || currentSize.getHeight()!= getHeight()) {
-			currentSize = new Dimension(getWidth(), getHeight());
-			calculatePoints();
-		}
-		
-		//pr¸fen, ob sich die Minimale Grˆﬂe vom Panel ver‰ndern SOLL
-		if (getPreferredSize().getWidth() != model.getMinWidth() || getPreferredSize().getHeight() != model.getMinHeight()) {
+		// wenn sich die gew√ºnschte Gr√∂√üe oder die Gr√∂√üe des Fensters ver√§ndert hat
+		if (getPreferredSize().getWidth() != model.getMinWidth() || getPreferredSize().getHeight() != model.getMinHeight() ||
+			currentSize.width != getWidth() || currentSize.height != getHeight())
+		{
 			setPreferredSize(new Dimension(model.getMinWidth(), model.getMinHeight()));
+			
+			// die echte Gr√∂√üe anpassen, wenn das Fenster kleiner als gew√ºnscht ist
+			int width = getWidth();
+			// die Breite soll immer der gew√ºnschten Breite entsprechen
+			if (width != model.getMinWidth()) {
+				width = model.getMinWidth();
+			}
+			
+			int height = getHeight();
+			// die H√∂he soll immer maximal sein!
+			if (height < model.getMinHeight()) {
+				height = model.getMinHeight();
+			}
+			
+			setSize(width, height);
+			currentSize = new Dimension(getWidth(), getHeight());
+			
+			// Punkte neu berechnen
 			calculatePoints();
 		}
 		
-		// Grˆﬂe vom ViewPort angeben
-			// der ViePort ist maximal so groﬂ, wie das Panel selber
+		// Gr√∂√üe vom ViewPort angeben
+			// der ViePort ist maximal so gro√ü, wie das Panel selber
 		Rectangle viewPort = new Rectangle(0, 0, getWidth(), getHeight());
 			// wenn sich das Panel in einem ScrollPane befindet, dann soll nur der sichtbare Bereich gezeichnet werden, um performanter zu sein
 		if (getParent() instanceof JViewport) {
@@ -101,7 +115,7 @@ public class DrawWavPanel extends JPanel {
 			}
 		}
 	}
-
+	
 /////////////////////////////////////////////Methoden////////////////////////////////////////////////////////
 
 	private void calculatePoints() {
@@ -124,11 +138,12 @@ public class DrawWavPanel extends JPanel {
 			points.add(new Point((int)(((double)getWidth() / (double)model.getWavFileValues().length) * i - (double)model.getPointDiameter() / 2), (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFileValues()[i] - (double)model.getPointDiameter() / 2)));
 		}
 		
-		System.out.println(model.getWavFileValues().length);
+		System.out.println("Punkte:" + model.getWavFileValues().length);
 	}
 	
 	/**
-	 * Bresenham Algorithm  Quelle: http://tech-algorithm.com/articles/drawing-line-using-bresenham-algorithm/
+	 * Bresenham Algorithm
+	 * Quelle: http://tech-algorithm.com/articles/drawing-line-using-bresenham-algorithm/
 	 * 
 	 * @param x
 	 * @param y

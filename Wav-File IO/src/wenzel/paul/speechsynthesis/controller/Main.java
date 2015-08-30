@@ -5,6 +5,7 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.RepaintManager;
 import javax.swing.filechooser.FileFilter;
 
 import wenzel.paul.speechsynthesis.controller.listener.ViewListener;
@@ -22,9 +23,11 @@ import wenzel.paul.speechsynthesis.wav.WavFile;
 public class Main implements ViewListener {
 	
 /////////////////////////////////////////////////Konstanten/////////////////////////////////////////////////
+	
 	/** die Anzahl an Pixel pro Frame einer Datei, welche das Fenster breit sein soll */
 	private final float WINDOW_WIDTH_PER_FRAME = 1.0f;
 
+	/** der Pfad, mit welchem der File-Chooser gestartet wird */
 	private String WAV_FILE_PATH = "C:/Users/Wenze/Desktop/Java Workspace/Sprachsynthese/Wav-File IO/res";
 
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
@@ -54,6 +57,21 @@ public class Main implements ViewListener {
 	public void openWavFile() {
 		init();
 	}
+	
+	public void zoom(float zoomValue) {
+		System.out.println("hi: " + (int)Math.ceil(model.getWavFileValues().length * zoomValue));
+		model.setMinWidth((int)Math.ceil(model.getWavFileValues().length * zoomValue));
+		view.repaint();
+	}
+	
+	
+	public void startPausePlayback() {
+			
+	}
+	
+	public void stopPlayback() {
+			
+	}
 
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
@@ -66,14 +84,15 @@ public class Main implements ViewListener {
 		//Datenfelder initialisieren
 		model = initNewModel();
 		view = new View(model, this);
+		view.repaint();
 	}
 	
 	/**
-	 * Die Methode �ffnet einen FileChooser �ber welchen eine .WAV-Datei ausgew�hlt werden kann.
-	 * Die Ausgew�hlte .WAV-Datei wird anschlie�end in ein {@link Model} geladen.
+	 * Die Methode öffnet einen FileChooser über welchen eine .WAV-Datei ausgewählt werden kann.
+	 * Die Ausgewählte .WAV-Datei wird anschließend in ein {@link Model} geladen.
 	 * 
-	 * @return	das {@link Model} mit den Daten der gew�nschten .WAV-Datei <br>
-	 * 		  	falls null zur�ckgegeben wird, so gab es einen Fehler!
+	 * @return	das {@link Model} mit den Daten der gewünschten .WAV-Datei <br>
+	 * 		  	falls null zurückgegeben wird, so gab es einen Fehler!
 	 */
 	private Model initNewModel() {
 		Model model = null;
@@ -109,7 +128,7 @@ public class Main implements ViewListener {
 				
 				// WAV-Datei �ffnen
 				try {
-					System.out.println("///////////////NEUE DATEI �FFNEN///////////////");
+					System.out.println("///////////////NEUE DATEI ÖFFNEN///////////////");
 					// Open the wav file specified as the first argument
 					WavFile wavFile = WavFile.openWavFile(new File(fileChooser.getSelectedFile().getAbsolutePath()));
 					

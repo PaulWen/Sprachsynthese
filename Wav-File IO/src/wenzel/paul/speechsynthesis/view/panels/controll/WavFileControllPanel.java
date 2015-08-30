@@ -3,11 +3,15 @@ package wenzel.paul.speechsynthesis.view.panels.controll;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import wenzel.paul.speechsynthesis.controller.listener.WavFileControllPanelListener;
 
@@ -24,8 +28,7 @@ public class WavFileControllPanel extends JPanel {
 	
 	private JButton loadWavFileButton;
 	
-	private JLabel zoomLabel;
-	private JSpinner zoomSchalter;
+	private JSpinner zoomSpinner;
 	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
@@ -47,18 +50,30 @@ public class WavFileControllPanel extends JPanel {
 		});
 		
 			//Zoom Konfigurieren
-//		JPanel zoomPanel = new JPanel(new FlowLayout());
-//		zoomLabel = new JLabel("Zoom von 1 - 1000 Pixel^2 pro Rasterquadrat: ");
-//		zoomPanel.add(zoomLabel);
-//		zoomSchalter = new JSpinner(new SpinnerNumberModel(7, 1, 1000, 1));
-//		zoomSchalter.addChangeListener(this);
-//		zoomPanel.add(zoomSchalter);
-//		settingsPanel.add(zoomPanel);
+		zoomSpinner = new JSpinner(new SpinnerNumberModel(1.0f, 0, 10.0f, 0.1f));
+		zoomSpinner.setToolTipText("Zoom-Level");
+		JSpinner.NumberEditor editor = (JSpinner.NumberEditor)zoomSpinner.getEditor();
+        DecimalFormat format = editor.getFormat();
+        format.setMinimumFractionDigits(1);
+        format.setMaximumFractionDigits(1);
+        editor.getTextField().setHorizontalAlignment(SwingConstants.CENTER);
+		zoomSpinner.addChangeListener( new ChangeListener() {
+			private float zoomValue = 1.0f;
+			
+			public void stateChanged(ChangeEvent e) {
+				// nur wenn sich der Wert wirklich geÃ¤ndert hat eine Action melden
+				if (((Double)((JSpinner)e.getSource()).getValue()).floatValue() != zoomValue) {
+					listener.zoom(((Double)((JSpinner)e.getSource()).getValue()).floatValue());
+					zoomValue = ((Double)((JSpinner)e.getSource()).getValue()).floatValue();
+				}
+			}
+		});
 		
 			//JPanel Konfigurieren
 		setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
-			//Komponenten Hinzufügen
+			//Komponenten HinzufÃ¼gen
 		add(loadWavFileButton);
+		add(zoomSpinner);
 	}
 	
 	
@@ -71,17 +86,7 @@ public class WavFileControllPanel extends JPanel {
 	
 	
 ///////////////////////////////////////////////geerbte Methoden//////////////////////////////////////////////
-	
-//	public void stateChanged(ChangeEvent e) {
-//	//wenn sich der Wert des ZoomSchalter geändert hat
-//	if (e.getSource() == zoomSchalter) {
-//		Dimension aktuelleFramegroesse = getSize();
-//		labyrinth.zoom((Integer)zoomSchalter.getValue(), (Integer)zoomSchalter.getValue()); // Die Rasterquadratgröße im Labyrinth
-//																							// entsprechend der Nutzereingabe setzen.
-//		frameNeuZeichnen(aktuelleFramegroesse);
-//	}
-//	
-//}
+
 	
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////

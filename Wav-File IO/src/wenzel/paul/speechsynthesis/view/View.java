@@ -10,6 +10,7 @@ import javax.swing.JTabbedPane;
 import wenzel.paul.speechsynthesis.controller.listener.ViewListener;
 import wenzel.paul.speechsynthesis.model.ViewModel;
 import wenzel.paul.speechsynthesis.view.panels.DrawWavPanel;
+import wenzel.paul.speechsynthesis.view.panels.controll.PlaybackControllPanel;
 import wenzel.paul.speechsynthesis.view.panels.controll.WavFileControllPanel;
 
 public class View extends JFrame {
@@ -25,6 +26,7 @@ public class View extends JFrame {
 	private DrawWavPanel drawPanel;
 	
 	private WavFileControllPanel wavFileControllPanel;
+	private PlaybackControllPanel playbackControllPanel;
 
 /////////////////////////////////////////////Konstruktor///////////////////////////////////////////////////////
 
@@ -35,24 +37,26 @@ public class View extends JFrame {
 		this.model = model;
 		this.listener = listener;
 		
-		//Panels Konfigurieren
+		//Panels konfigurieren
 		drawPanel = new DrawWavPanel(model);
 		scrollPane = new JScrollPane(drawPanel);
 		
 		wavFileControllPanel = new WavFileControllPanel(listener);
+		playbackControllPanel = new PlaybackControllPanel(listener);
 		
 		//JTappedPane erstellen
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addTab("Datei", null, wavFileControllPanel, "Laden einer WAV-Datei");
+		tabbedPane.addTab("Wiedergabe", null, playbackControllPanel, "WAV-Datei wiedergeben");
 
-		//JFrame Konfigurieren
+		//JFrame konfigurieren
 		setLayout(new BorderLayout());
 		setTitle("WAV-File Analyser");
 		setSize(500, 800);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
-			//Komponenten Hinzufügen
+			//Komponenten hinzufÃ¼gen
 		add(scrollPane, BorderLayout.CENTER);
 		add(tabbedPane, BorderLayout.SOUTH);
 						
@@ -62,7 +66,11 @@ public class View extends JFrame {
 	
 /////////////////////////////////////////////geerbte Methoden/////////////////////////////////////////////////
 	
-
+	@Override
+	public void repaint() {
+		drawPanel.revalidate();
+		super.repaint();
+	}
 	
 /////////////////////////////////////////////Methoden////////////////////////////////////////////////////////
 
