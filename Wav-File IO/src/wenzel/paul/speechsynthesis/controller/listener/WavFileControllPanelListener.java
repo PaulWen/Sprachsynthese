@@ -22,6 +22,12 @@ public interface WavFileControllPanelListener {
 	public void openWavFile();
 	
 	/**
+	 * Die Methode sorgt dafür, dass die geöffnete WAV-Datei an einem zu wählenden Speicherort gespeichert wird.
+	 */
+	public void saveWavFile();
+	
+	
+	/**
 	 * Die Methode passt die Präsentation der WAV-Datei an das gewünschte Zoom-Level an.
 	 * 
 	 * Zoomlevel =  die Anzahl an Pixel pro Frame einer Datei, welche das Fenster breit sein soll

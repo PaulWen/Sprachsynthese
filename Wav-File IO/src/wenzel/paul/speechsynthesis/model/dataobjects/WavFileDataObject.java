@@ -10,13 +10,6 @@ package wenzel.paul.speechsynthesis.model.dataobjects;
 public class WavFileDataObject {
 	
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
-	
-//	private File wavFile;						// File that will be read from or written to
-//	private int bytesPerSample;			// Number of bytes required to store a single sample
-	private long numberOfFrames;					// Number of frames within the data section
-//	private double floatScale;				// Scaling factor used for int <-> float conversion				
-//	private double floatOffset;			// Offset factor used for int <-> float conversion				
-//	private boolean wordAlignAdjust;		// Specify if an extra byte at the end of the data chunk is required for word alignment
 
 	// Wav Header
 	/** die Anzahl an Channels */
@@ -62,14 +55,29 @@ public class WavFileDataObject {
 		this.blockAlign = blockAlign;
 		this.validBits = validBits;
 		this.wavFileValues = wavFileValues;
-		
-		numberOfFrames = wavFileValues[0].length;
 	}
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
 	
-
+	public double[][] getWavFileValues() {
+		return wavFileValues;
+	}
 	
+	public int getNumberOfChannels() {
+		return numberOfChannels;
+	}
+	
+	public int getValidBits() {
+		return validBits;
+	}
+	
+	public long getSampleRate() {
+		return sampleRate;
+	}
+	
+	public int getBlockAlign() {
+		return blockAlign;
+	}
 	
 ///////////////////////////////////////////////geerbte Methoden//////////////////////////////////////////////
 	
@@ -80,12 +88,8 @@ public class WavFileDataObject {
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
-	public double[][] getWavFileValues() {
-		return wavFileValues;
-	}
-	
 	public long getNumberOfFrames() {
-		return numberOfFrames;
+		return wavFileValues[0].length;
 	}
 	
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	

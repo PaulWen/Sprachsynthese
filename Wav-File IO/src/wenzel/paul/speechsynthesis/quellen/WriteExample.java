@@ -35,6 +35,8 @@ public class WriteExample
 				{
 					buffer[0][s] = Math.sin(2.0 * Math.PI * 400 * frameCounter / sampleRate);
 					buffer[1][s] = Math.sin(2.0 * Math.PI * 500 * frameCounter / sampleRate);
+					
+					System.out.println(buffer[0][s]);
 				}
 
 				// Write the buffer

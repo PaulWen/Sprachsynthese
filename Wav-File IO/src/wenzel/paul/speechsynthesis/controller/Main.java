@@ -13,6 +13,7 @@ import wenzel.paul.speechsynthesis.model.Model;
 import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
 import wenzel.paul.speechsynthesis.quellen.WavFileException;
 import wenzel.paul.speechsynthesis.util.wav.ReadWavFile;
+import wenzel.paul.speechsynthesis.util.wav.WriteWavFile;
 import wenzel.paul.speechsynthesis.view.View;
 
 /**
@@ -60,6 +61,10 @@ public class Main implements ViewListener {
 		init();
 	}
 	
+	public void saveWavFile() {
+		WriteWavFile.writeWavFile(model.getWavFile(), startFileChooser(true));
+	}
+	
 	public void zoom(float zoomValue) {
 		model.setMinWidth((int)Math.ceil(model.getWavFile().getNumberOfFrames() * zoomValue));
 		view.repaint();
@@ -98,6 +103,37 @@ public class Main implements ViewListener {
 	private Model initNewModel() {
 		Model model = null;
 		
+		// WAV-Datei öffnen
+		try {
+			WavFileDataObject wavFile = ReadWavFile.openWavFile(startFileChooser(false));
+			
+			// neues Model anlegen
+			model = new Model(wavFile, (int)Math.ceil(wavFile.getNumberOfFrames() * WINDOW_WIDTH_PER_FRAME), 500, 4, Color.white, Color.green, Color.black);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (WavFileException e) {
+			e.printStackTrace();
+		}
+		
+		return model;
+	}
+	
+	public static void main(String[] args) {
+		new Main();
+	}
+	
+	/**
+	 * Die Methode öffnet einen FileChosser um entweder einen Speicherort für eine Datei wählen zu lassen,
+	 * oder eine Datei auszuwählen welche geöffnet werden soll.
+	 * 
+	 * @param save true = es soll ein Speicherort gewählt werden <br>
+	 * 				false = es soll eine zu öffnende Datei ausgewählt werden
+	 * 
+	 * @return die gewünschte Datei oder der gewünschte Speicherort
+	 */
+	private File startFileChooser(boolean save) {
+		String selectedFilePath = null;
+		
 		//FileChooser Konfigurieren
 		JFileChooser fileChooser = new JFileChooser(WAV_FILE_PATH);
 		fileChooser.setFileFilter(new FileFilter() {
@@ -117,7 +153,13 @@ public class Main implements ViewListener {
 			}
 		});
 		
-		int status = fileChooser.showOpenDialog(view);
+		int status;
+		// gucken ob ein Öffne- oder Speicher-Dialog gestartet werden soll
+		if (save) {
+			status = fileChooser.showSaveDialog(view);
+		} else {
+			status = fileChooser.showOpenDialog(view);
+		}
 		
 		//wenn eine Datei ausgewählt wurde und es kein Problem gab
 		if (status == JFileChooser.APPROVE_OPTION) {
@@ -125,20 +167,8 @@ public class Main implements ViewListener {
 			if (fileChooser.getSelectedFile().getName().endsWith(".wav") ||
 					fileChooser.getSelectedFile().getName().endsWith(".WAV")) {
 				
-				String wavFilePath = fileChooser.getSelectedFile().getAbsolutePath();
-				
-				// WAV-Datei öffnen
-				try {
-					WavFileDataObject wavFile = ReadWavFile.openWavFile(new File(wavFilePath));
-					
-					// neues Model anlegen
-					model = new Model(wavFile, (int)Math.ceil(wavFile.getNumberOfFrames() * WINDOW_WIDTH_PER_FRAME), 500, 4, Color.white, Color.green, Color.black);
-				} catch (IOException e) {
-					e.printStackTrace();
-				} catch (WavFileException e) {
-					e.printStackTrace();
-				}
-				
+				selectedFilePath = fileChooser.getSelectedFile().getAbsolutePath();
+		
 			} else { // wenn die Datei keine WAV-Datei ist (=ungültig)
 				//Fehlermeldung
 				JOptionPane.showMessageDialog(view, "Die Datei muss eine WAV-Datei sein!", "Falscher Dateityp!",
@@ -146,11 +176,13 @@ public class Main implements ViewListener {
 			}
 		}
 		
-		return model;
-	}
-	
-	public static void main(String[] args) {
-		new Main();
+		
+		// ausgewählte Datei zurückgeben oder null, falls ein Fehler aufgetreten ist
+		if (selectedFilePath != null) {
+			return new File(selectedFilePath);
+		} else {
+			return null;
+		}
 	}
 	
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	

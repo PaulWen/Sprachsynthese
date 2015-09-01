@@ -249,7 +249,7 @@ public class ReadWavFile {
 	}
 	
 	/**
-	 * Get and Put little endian data from local buffer.
+	 * Get little endian data from local buffer.
 	 * 
 	 * @param buffer
 	 * @param pos
@@ -273,7 +273,7 @@ public class ReadWavFile {
 	 * Die Methode list alle Frames aus einer WAV-Datei aus und gibt sich nach Channels sortiert aus.
 	 * Die Werte liegen zwichen 0 und 1!
 	 * 
-	 * @param wavFileInputStream Der InputSTream über welchen die WAV-Datei ausgelesen werden kann. <br>
+	 * @param wavFileInputStream Der InputStream über welchen die WAV-Datei ausgelesen werden kann. <br>
 	 * 								Es ist wichtig, dass die nächsten im Inputstream kommenden Bytes ausschließlich Frames beschreiben!
 	 * @param numberOfChannels die Anzahl an Channels, welche die WAV-Datei hat
 	 * @param numberOfFrames die Anzahl an Frames pro Channel, welche die WAV-Datei hat
@@ -345,10 +345,6 @@ public class ReadWavFile {
 				sampleNumber++;
 			}
 			bytesRead= wavFileInputStream.read(buffer, 0, BUFFER_SIZE);
-		}
-		
-		for (long l : samples) {
-			System.out.println(l);
 		}
 		
 		return samples;

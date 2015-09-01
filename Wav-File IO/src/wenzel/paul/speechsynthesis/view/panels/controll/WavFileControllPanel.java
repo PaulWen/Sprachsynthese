@@ -28,6 +28,7 @@ public class WavFileControllPanel extends JPanel {
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 	
 	private JButton loadWavFileButton;
+	private JButton saveWavFileButton;
 	
 	private JSpinner zoomSpinner;
 	
@@ -42,11 +43,18 @@ public class WavFileControllPanel extends JPanel {
 		
 			//Buttons Konfigurieren
 		loadWavFileButton = new JButton("lade WAV-Datei");
-		loadWavFileButton.setActionCommand("ladeLabyrinthButton");
 		loadWavFileButton.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
 				listener.openWavFile();
+			}
+		});
+		
+		saveWavFileButton = new JButton("speichere WAV-Datei");
+		saveWavFileButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				listener.saveWavFile();
 			}
 		});
 		
@@ -74,6 +82,7 @@ public class WavFileControllPanel extends JPanel {
 		setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 			//Komponenten Hinzufügen
 		add(loadWavFileButton);
+		add(saveWavFileButton);
 		add(zoomSpinner);
 	}
 	
