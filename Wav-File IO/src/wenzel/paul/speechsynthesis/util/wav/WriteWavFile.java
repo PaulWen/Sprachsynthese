@@ -94,7 +94,8 @@ public class WriteWavFile {
 										16 +	// Format data
 										8 + 	// Data ID and size
 										dataChunkSize;
-
+			
+			
 			// Chunks must be word aligned, so if odd number of audio data bytes
 			// adjust the main chunk size
 			if (dataChunkSize % 2 == 1) {
@@ -228,6 +229,9 @@ public class WriteWavFile {
 				
 			}
 		}
+		
+		// falls der Buffer noch nicht leer ist, die letzten bytes ebenfalls in die Datei laden
+		if (bufferPointer > 0) wavFileOutputStream.write(buffer, 0, bufferPointer);
 	}
 	
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	
