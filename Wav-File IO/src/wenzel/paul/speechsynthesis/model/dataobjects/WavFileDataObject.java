@@ -88,7 +88,7 @@ public class WavFileDataObject {
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
-	public long getNumberOfFrames() {
+	public int getNumberOfFrames() {
 		return wavFileValues[0].length;
 	}
 	

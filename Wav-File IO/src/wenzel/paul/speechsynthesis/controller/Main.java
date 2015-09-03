@@ -13,6 +13,7 @@ import wenzel.paul.speechsynthesis.model.Model;
 import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
 import wenzel.paul.speechsynthesis.quellen.WavFileException;
 import wenzel.paul.speechsynthesis.util.wav.ReadWavFile;
+import wenzel.paul.speechsynthesis.util.wav.WavFilePlayer;
 import wenzel.paul.speechsynthesis.util.wav.WriteWavFile;
 import wenzel.paul.speechsynthesis.view.View;
 
@@ -37,6 +38,8 @@ public class Main implements ViewListener {
 	
 	private Model model;
 	private View view;
+	
+	private WavFilePlayer player;
 	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
@@ -72,11 +75,15 @@ public class Main implements ViewListener {
 	
 	
 	public void startPausePlayback() {
-			
+		if (player.getState() == WavFilePlayer.PLAYS) {
+			player.pause();
+		} else if (player.getState() == WavFilePlayer.PAUSED) {
+			player.play();
+		}
 	}
 	
 	public void stopPlayback() {
-			
+		player.setIndexOfPosition(0);
 	}
 
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
@@ -91,6 +98,8 @@ public class Main implements ViewListener {
 		model = initNewModel();
 		view = new View(model, this);
 		view.repaint();
+		
+		player = new WavFilePlayer(model.getWavFile());
 	}
 	
 	/**
