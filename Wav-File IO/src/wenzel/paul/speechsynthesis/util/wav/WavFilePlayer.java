@@ -1,5 +1,12 @@
 package wenzel.paul.speechsynthesis.util.wav;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
+
 import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
 
 /**
@@ -78,27 +85,71 @@ public class WavFilePlayer {
 			playbackThread = new Thread(new Runnable() {
 				
 				public void run() {
+					SourceDataLine sourceLine = null;
+					AudioFormat audioFormat;
+					AudioInputStream audioStream;
+					
+					 try {
+						 audioStream = AudioSystem.getAudioInputStream(wavFileDataObject.getFile());
+						 audioFormat = audioStream.getFormat();
+						 DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
+				            sourceLine = (SourceDataLine) AudioSystem.getLine(info);
+				            sourceLine.open(audioFormat);
+			        } catch (LineUnavailableException e) {
+			            e.printStackTrace();
+			            System.exit(1);
+			        } catch (Exception e) {
+			            e.printStackTrace();
+			            System.exit(1);
+			        }
+					
 					while (!Thread.currentThread().isInterrupted()) {
 						
 						// berechnen wie viele Samples geladen werden sollen
-						int numberOfSamplesToConvert;
-						if (wavFileDataObject.getNumberOfFrames() - (indexOfPlaybackPosition + 1) < MAX_SAMPLES_TO_CONVERT) {
+						int numberOfSamplesToConvert = 0;
+						
+						// wenn die Datei bereits komplett wiedergegeben wurde
+						if (wavFileDataObject.getNumberOfFrames() - (indexOfPlaybackPosition + 1) == 0) {
+							// die Playbackposition zurück setzen
+							indexOfPlaybackPosition = 0;
+							
+							// die Wiedergabe beenden
+							pause();
+							return;
+							
+						// wenn weniger als die maximale Anzahl an auf einmal zu konvertierenden Frames noch vorhanden sind
+						} else if (wavFileDataObject.getNumberOfFrames() - (indexOfPlaybackPosition + 1) < MAX_SAMPLES_TO_CONVERT) {
 							numberOfSamplesToConvert = wavFileDataObject.getNumberOfFrames() - (indexOfPlaybackPosition + 1);
+						
+						// wenn noch mehr als die maximale Anzahl an auf einmal zu konvertierenden Frames noch vorhanden sind
 						} else {
 							numberOfSamplesToConvert = MAX_SAMPLES_TO_CONVERT;
 						}
 						
+//						System.out.println("info: " + indexOfPlaybackPosition);
+						
 						// die nächsten Bytes laden
-						byte[] values = doubleValuesToByte(wavFileDataObject.getWavFileValues(),
-								wavFileDataObject.getValidBits(), (wavFileDataObject.getValidBits() + 7) / 8,
+						byte[] values = doubleValuesToByte(wavFileDataObject.getWavFileValues(), wavFileDataObject.getNumberOfChannels(),
+								wavFileDataObject.getValidBits(), wavFileDataObject.getBytesPerSample(),
 								indexOfPlaybackPosition, numberOfSamplesToConvert);
 							
-						int i = 0;
-						while (!Thread.currentThread().isInterrupted()) {
-							// bytes wiedergeben
-							System.out.println(values[i]);
-							
-							i++;
+						int numberOfBytesPlayed = 0;
+						while (!Thread.currentThread().isInterrupted() && numberOfBytesPlayed < values.length) {
+							// BytesPerSample * NumberOfChannels = Anzahl der aufeinmal wiederzugebenden Bytes
+							// diese Anzahl an Bytes stellt genau ein Frame dar
+							for (int j = wavFileDataObject.getBytesPerSample() * wavFileDataObject.getNumberOfChannels(); j > 0; j--) {
+								System.out.println(values[numberOfBytesPlayed]);
+								numberOfBytesPlayed++;
+							}
+
+//							// Anzahl der aufeinmal wiederzugebenden Bytes (= BytesPerSample * NumberOfChannels)
+//							// diese Anzahl an Bytes stellt genau ein Frame dar
+//							int numberOfBytesToPlayAtOnce = wavFileDataObject.getBytesPerSample() * wavFileDataObject.getNumberOfChannels();
+//							System.out.println("Player: " + sourceLine.write(values, numberOfBytesPlayed, numberOfBytesToPlayAtOnce));
+//							
+//							System.out.println(numberOfBytesPlayed);
+//							
+//							numberOfBytesPlayed += numberOfBytesToPlayAtOnce;
 							indexOfPlaybackPosition++;
 						}
 					}
@@ -119,11 +170,11 @@ public class WavFilePlayer {
 		}
 	}
 	
-	private byte[] doubleValuesToByte(	double[][] wavFileValues, int validBits, int bytesPerSample,
+	private byte[] doubleValuesToByte(	double[][] wavFileValues, int numberOfChannels, int validBits, int bytesPerSample,
 										int indexOfFirstFrame, int numberOfSamplesToConvert) {
 										
 		// Local buffer used for IO
-		byte[] buffer = new byte[numberOfSamplesToConvert * bytesPerSample * wavFileValues.length];
+		byte[] buffer = new byte[numberOfSamplesToConvert * bytesPerSample * numberOfChannels];
 		int bufferPointer = 0; // Points to the current position in local buffer
 		
 		double floatOffset;
@@ -145,10 +196,10 @@ public class WavFilePlayer {
 		}
 		
 		// für die gewünschten Frames
-		for (int frameNumber = indexOfFirstFrame; frameNumber < numberOfSamplesToConvert
+		for (int frameNumber = indexOfFirstFrame; frameNumber < indexOfFirstFrame
 				+ numberOfSamplesToConvert; frameNumber++) {
 			// für alle Channels
-			for (int channelNumber = 0; channelNumber < wavFileValues.length; channelNumber++) {
+			for (int channelNumber = 0; channelNumber < numberOfChannels; channelNumber++) {
 				
 				long sample = (long) (floatScale * (floatOffset + wavFileValues[channelNumber][frameNumber]));
 				

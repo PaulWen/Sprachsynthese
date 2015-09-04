@@ -117,15 +117,15 @@ public class WriteWavFile {
 			// Put format data in buffer
 			long averageBytesPerSecond = wavFile.getSampleRate() * wavFile.getBlockAlign();
 
-			putLE(FMT_CHUNK_ID,				buffer, 0, 4);		// Chunk ID
-			putLE(16,							buffer, 4, 4);		// Chunk Data Size
-			putLE(1,								buffer, 8, 2);		// Compression Code (Uncompressed)
-			putLE(wavFile.getNumberOfChannels(),				buffer, 10, 2);		// Number of channels
-			putLE(wavFile.getSampleRate(),					buffer, 12, 4);		// Sample Rate
-			putLE(averageBytesPerSecond,	buffer, 16, 4);		// Average Bytes Per Second
-			putLE(wavFile.getBlockAlign(),		buffer, 20, 2);		// Block Align
-			putLE(wavFile.getValidBits(),					buffer, 22, 2);		// Valid Bits
-
+			putLE(FMT_CHUNK_ID, buffer, 0, 4); // Chunk ID
+			putLE(16, buffer, 4, 4); // Chunk Data Size
+			putLE(1, buffer, 8, 2); // Compression Code (Uncompressed)
+			putLE(wavFile.getNumberOfChannels(), buffer, 10, 2); // Number of channels
+			putLE(wavFile.getSampleRate(), buffer, 12, 4); // Sample Rate
+			putLE(averageBytesPerSecond, buffer, 16, 4); // Average Bytes Per Second
+			putLE(wavFile.getBlockAlign(), buffer, 20, 2); // Block Align
+			putLE(wavFile.getValidBits(), buffer, 22, 2); // Valid Bits
+			
 			// Write Format Chunk
 			wavFileOutputStream.write(buffer, 0, 24);
 
@@ -156,7 +156,7 @@ public class WriteWavFile {
 			// DATEN IN DIE WAV-DATEI SCHREIBEN
 			
 			// Frames schreiben
-			writeFrames(wavFileOutputStream, wavFile.getWavFileValues(), floatScale, floatOffset, (wavFile.getValidBits() + 7) / 8);
+			writeFrames(wavFileOutputStream, wavFile.getWavFileValues(), floatScale, floatOffset, wavFile.getBytesPerSample());
 			
 			// Close the wavFile
 				// If an extra byte is required for word alignment, add it to the end

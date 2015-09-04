@@ -1,5 +1,7 @@
 package wenzel.paul.speechsynthesis.model.dataobjects;
 
+import java.io.File;
+
 /**
  * Die Klasse {@link WavFileDataObject} [...]
  * 
@@ -12,9 +14,6 @@ public class WavFileDataObject {
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 
 	// Wav Header
-	/** die Anzahl an Channels */
-	private int numberOfChannels;				
-	
 	/** die Sample Rate */
 	private long sampleRate;				
 	
@@ -33,7 +32,7 @@ public class WavFileDataObject {
 
 	// WAV Data
 	/** die einzelnen Frame-Werte */
-	private double[][] wavFileValues;		
+	private double[][] wavFileValues;	
 	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
@@ -47,10 +46,9 @@ public class WavFileDataObject {
 	 * @param validBits
 	 * @param wavFileValues
 	 */
-	public WavFileDataObject(int numberOfChannels, long sampleRate, int blockAlign, int validBits,
+	public WavFileDataObject(long sampleRate, int blockAlign, int validBits,
 			double[][] wavFileValues)
 	{
-		this.numberOfChannels = numberOfChannels;
 		this.sampleRate = sampleRate;
 		this.blockAlign = blockAlign;
 		this.validBits = validBits;
@@ -61,10 +59,6 @@ public class WavFileDataObject {
 	
 	public double[][] getWavFileValues() {
 		return wavFileValues;
-	}
-	
-	public int getNumberOfChannels() {
-		return numberOfChannels;
 	}
 	
 	public int getValidBits() {
@@ -92,6 +86,18 @@ public class WavFileDataObject {
 		return wavFileValues[0].length;
 	}
 	
+	/** die Anzahl an Channels */
+	public int getNumberOfChannels() {
+		return wavFileValues.length;
+	}
+	
+	public int getBytesPerSample() {
+		return (validBits + 7) / 8;
+	}
+
+	public File getFile() {
+		return new File("C:/Users/Wenze/Desktop/Java Workspace/Sprachsynthese/Wav-File IO/res/wav_examples/Test.wav");
+	}
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	
 	
 	

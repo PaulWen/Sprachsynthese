@@ -245,7 +245,7 @@ public class ReadWavFile {
 		wavFileInputStream = null;
 		
 		// ein WavFileDataObject erstellen
-		return new WavFileDataObject(numberOfChannels, sampleRate, blockAlign, validBits, wavFileValues);
+		return new WavFileDataObject(sampleRate, blockAlign, validBits, wavFileValues);
 	}
 	
 	/**
