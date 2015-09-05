@@ -55,6 +55,7 @@ public class PlayWav {
 
         sourceLine.start();
 
+        	
         int i = 0;
         int nBytesRead = 0;
         byte[] abData = new byte[2]; // Bytes per Sample sind 2!
@@ -63,7 +64,7 @@ public class PlayWav {
                 nBytesRead = audioStream.read(abData, 0, abData.length);
                 
                 for (byte b : abData) {
-                	System.out.println(b);
+                	System.out.println(i + " " + b);
                 }
                 
                 i++;
@@ -74,6 +75,7 @@ public class PlayWav {
             if (nBytesRead >= 0) {
 //                @SuppressWarnings("unused")
                 int nBytesWritten = sourceLine.write(abData, 0, nBytesRead);
+                System.out.println(nBytesWritten + " hallo");
             }
         }
 
@@ -82,6 +84,6 @@ public class PlayWav {
     }
     
     public static void main(String[] args) {
-		new PlayWav().playSound("res/wav_examples/Test.wav");;
+		new PlayWav().playSound("res/wav_examples/welcome.wav");;
 	}
 }
