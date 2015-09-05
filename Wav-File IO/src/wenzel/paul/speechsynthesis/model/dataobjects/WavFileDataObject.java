@@ -96,7 +96,7 @@ public class WavFileDataObject {
 	}
 
 	public File getFile() {
-		return new File("C:/Users/Wenze/Desktop/Java Workspace/Sprachsynthese/Wav-File IO/res/wav_examples/Test.wav");
+		return new File("C:/Users/Wenze/Desktop/Java Workspace/Sprachsynthese/Wav-File IO/res/wav_examples/welcome.wav");
 	}
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	
 	

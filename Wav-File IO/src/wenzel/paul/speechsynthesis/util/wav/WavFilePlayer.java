@@ -35,10 +35,17 @@ public class WavFilePlayer {
 	/** der Status vom Player (siehe Konstanten der Klasse {@link WavFilePlayer}) */
 	private int state;
 	
+	/** das {@link WavFileDataObject}, welches die wiederzugebende WAV-Datei repräsentiert */
 	private WavFileDataObject wavFileDataObject;
+	
+	/** der Thread, in welchem die Wiedergabe statt finden soll */
 	private Thread playbackThread;
 	
+	/** der Index des als nächstes wiederzugebenden Frames */
 	private int indexOfPlaybackPosition;
+
+	/** hier wird der Sound ausgegeben */
+	SourceDataLine sourceLine;
 	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
@@ -50,8 +57,23 @@ public class WavFilePlayer {
 		this.wavFileDataObject = wavFileDataObject;
 		
 		indexOfPlaybackPosition = 0;
-		
 		state = WavFilePlayer.PAUSED;
+		
+		// Soundwiedergabe vorbereiten
+		 try {
+			 File soundFile = wavFileDataObject.getFile();
+			 AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+			 AudioFormat audioFormat = audioStream.getFormat();
+			 DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
+			 sourceLine = (SourceDataLine) AudioSystem.getLine(info);
+			 sourceLine.open(audioFormat);
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+            System.exit(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
 	}
 	
 	
@@ -81,98 +103,81 @@ public class WavFilePlayer {
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
+	
+	private void playbackRoutine() {
+		while (!Thread.currentThread().isInterrupted()) {
+			
+		//+++++berechnen wie viele Samples geladen werden sollen+++++//
+			int numberOfSamplesToConvert = 0;
+			
+			// wenn die Datei bereits komplett wiedergegeben wurde
+			if (wavFileDataObject.getNumberOfFrames() - indexOfPlaybackPosition == 0) {
+				// die Playbackposition zurück setzen
+				indexOfPlaybackPosition = 0;
+				
+				// die Wiedergabe beenden
+				System.out.println("DRAIN");
+				sourceLine.drain();
+				indexOfPlaybackPosition = sourceLine.getFramePosition();
+				System.out.println(indexOfPlaybackPosition);
+				pause();
+				return;
+				
+			// wenn weniger als die maximale Anzahl an auf einmal zu konvertierenden Frames noch vorhanden sind
+			} else if (wavFileDataObject.getNumberOfFrames() - indexOfPlaybackPosition < MAX_SAMPLES_TO_CONVERT) {
+				numberOfSamplesToConvert = wavFileDataObject.getNumberOfFrames() - indexOfPlaybackPosition;
+			
+			// wenn noch mehr als die maximale Anzahl an auf einmal zu konvertierenden Frames noch vorhanden sind
+			} else {
+				numberOfSamplesToConvert = MAX_SAMPLES_TO_CONVERT;
+			}
+			
+		//+++++Bytes laden+++++//
+			// die nächsten Bytes laden
+			byte[] values = doubleValuesToByte(wavFileDataObject.getWavFileValues(), wavFileDataObject.getNumberOfChannels(),
+					wavFileDataObject.getValidBits(), wavFileDataObject.getBytesPerSample(),
+					indexOfPlaybackPosition, numberOfSamplesToConvert);
+		
+		//+++++Bytes wiedergeben+++++//
+			int numberOfBytesPlayed = 0;
+			while (!Thread.currentThread().isInterrupted() && numberOfBytesPlayed < values.length) {
+				// Anzahl der auf einmal wiederzugebenden Bytes (= BytesPerSample * NumberOfChannels)
+				// diese Anzahl an Bytes stellt genau ein Frame dar
+				int numberOfBytesToPlayAtOnce = wavFileDataObject.getBytesPerSample() * wavFileDataObject.getNumberOfChannels();
+				sourceLine.write(values, numberOfBytesPlayed, numberOfBytesToPlayAtOnce);
+				sourceLine.getBufferSize();
+				
+				numberOfBytesPlayed += numberOfBytesToPlayAtOnce;
+				indexOfPlaybackPosition++;
+			}
+		}
+	}
+	
 	public void play() {
 		if (state != WavFilePlayer.PLAYS) {
-			
+			// Wiedergabe Thread aufbauen
 			playbackThread = new Thread(new Runnable() {
-				
 				public void run() {
-					SourceDataLine sourceLine = null;
-					AudioFormat audioFormat;
-					AudioInputStream audioStream = null;
-					File soundFile = wavFileDataObject.getFile();
-					
-					System.out.println(soundFile.exists());
-					
-					 try {
-						 audioStream = AudioSystem.getAudioInputStream(soundFile);
-						 audioFormat = audioStream.getFormat();
-						 DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
-				            sourceLine = (SourceDataLine) AudioSystem.getLine(info);
-				            sourceLine.open(audioFormat);
-				            sourceLine.start();
-			        } catch (LineUnavailableException e) {
-			            e.printStackTrace();
-			            System.exit(1);
-			        } catch (Exception e) {
-			            e.printStackTrace();
-			            System.exit(1);
-			        }
-					
-					while (!Thread.currentThread().isInterrupted()) {
-						
-						// berechnen wie viele Samples geladen werden sollen
-						int numberOfSamplesToConvert = 0;
-						
-						// wenn die Datei bereits komplett wiedergegeben wurde
-						if (wavFileDataObject.getNumberOfFrames() - indexOfPlaybackPosition == 0) {
-							// die Playbackposition zurück setzen
-							indexOfPlaybackPosition = 0;
-							
-							// die Wiedergabe beenden
-							pause();
-							return;
-							
-						// wenn weniger als die maximale Anzahl an auf einmal zu konvertierenden Frames noch vorhanden sind
-						} else if (wavFileDataObject.getNumberOfFrames() - indexOfPlaybackPosition < MAX_SAMPLES_TO_CONVERT) {
-							numberOfSamplesToConvert = wavFileDataObject.getNumberOfFrames() - indexOfPlaybackPosition;
-						
-						// wenn noch mehr als die maximale Anzahl an auf einmal zu konvertierenden Frames noch vorhanden sind
-						} else {
-							numberOfSamplesToConvert = MAX_SAMPLES_TO_CONVERT;
-						}
-						
-						
-						
-						
-						// die nächsten Bytes laden
-						byte[] values = doubleValuesToByte(wavFileDataObject.getWavFileValues(), wavFileDataObject.getNumberOfChannels(),
-								wavFileDataObject.getValidBits(), wavFileDataObject.getBytesPerSample(),
-								indexOfPlaybackPosition, numberOfSamplesToConvert);
-						
-						int numberOfBytesPlayed = 0;
-						while (!Thread.currentThread().isInterrupted() && numberOfBytesPlayed < values.length) {
-//							// BytesPerSample * NumberOfChannels = Anzahl der auf einmal wiederzugebenden Bytes
-//							// diese Anzahl an Bytes stellt genau ein Frame dar
-//							for (int j = wavFileDataObject.getBytesPerSample() * wavFileDataObject.getNumberOfChannels(); j > 0; j--) {
-//								System.out.println(numberOfBytesPlayed + " " + values[numberOfBytesPlayed]);
-//								numberOfBytesPlayed++;
-//							}
-
-							// Anzahl der auf einmal wiederzugebenden Bytes (= BytesPerSample * NumberOfChannels)
-							// diese Anzahl an Bytes stellt genau ein Frame dar
-							int numberOfBytesToPlayAtOnce = wavFileDataObject.getBytesPerSample() * wavFileDataObject.getNumberOfChannels();
-							sourceLine.start();
-							sourceLine.write(values, numberOfBytesPlayed, numberOfBytesToPlayAtOnce);
-							sourceLine.stop();
-							
-							numberOfBytesPlayed += numberOfBytesToPlayAtOnce;
-							indexOfPlaybackPosition++;
-						}
-					}
+					playbackRoutine();
 				}
 			});
 			
+			// die Wiedergabe wirklich starten
+			sourceLine.start();
 			playbackThread.start();
-			
 			state = WavFilePlayer.PLAYS;
 		}
 	}
 	
 	public void pause() {
 		if (state != WavFilePlayer.PAUSED) {
+			indexOfPlaybackPosition = sourceLine.getFramePosition();
+			System.out.println(indexOfPlaybackPosition);
+
+			// die Wiedergaeb pausieren
+			sourceLine.flush();
+			sourceLine.stop();
 			playbackThread.interrupt();
-	
 			state = WavFilePlayer.PAUSED;
 		}
 	}
