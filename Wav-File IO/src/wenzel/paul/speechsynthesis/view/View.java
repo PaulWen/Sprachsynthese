@@ -38,7 +38,7 @@ public class View extends JFrame {
 		this.listener = listener;
 		
 		//Panels konfigurieren
-		drawPanel = new DrawWavPanel(model);
+		drawPanel = new DrawWavPanel(model, listener);
 		scrollPane = new JScrollPane(drawPanel);
 		
 		wavFileControllPanel = new WavFileControllPanel(listener);

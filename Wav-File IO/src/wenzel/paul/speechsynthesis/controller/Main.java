@@ -85,6 +85,15 @@ public class Main implements ViewListener {
 	public void stopPlayback() {
 		player.stop();
 	}
+	
+	public void sampleClicked(int indexOfClickedSample) {
+		if (!model.getIndexOfSamplesToHilight().contains(indexOfClickedSample)) {
+			model.getIndexOfSamplesToHilight().add(indexOfClickedSample);
+		} else {
+			model.getIndexOfSamplesToHilight().remove(indexOfClickedSample);
+		}
+		view.repaint();
+	}
 
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
@@ -99,7 +108,7 @@ public class Main implements ViewListener {
 		view = new View(model, this);
 		view.repaint();
 		
-		player = new WavFilePlayer(model.getWavFile());
+		player = new WavFilePlayer(model);
 	}
 	
 	/**
@@ -117,7 +126,7 @@ public class Main implements ViewListener {
 			WavFileDataObject wavFile = ReadWavFile.openWavFile(startFileChooser(false));
 			
 			// neues Model anlegen
-			model = new Model(wavFile, (int)Math.ceil(wavFile.getNumberOfFrames() * WINDOW_WIDTH_PER_FRAME), 500, 4, Color.white, Color.green, Color.black);
+			model = new Model(wavFile, (int)Math.ceil(wavFile.getNumberOfFrames() * WINDOW_WIDTH_PER_FRAME), 500, 4, Color.white, Color.green, Color.black, Color.red);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (WavFileException e) {

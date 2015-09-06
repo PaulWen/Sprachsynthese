@@ -1,6 +1,8 @@
 package wenzel.paul.speechsynthesis.model;
 
 import java.awt.Color;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
 
@@ -11,7 +13,7 @@ import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
  * @author Paul Wenzel
  *
  */
-public class Model implements ViewModel {
+public class Model implements ViewModel, WavFilePlayerModel {
 	
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 	
@@ -20,20 +22,19 @@ public class Model implements ViewModel {
 	private int pointDiameter;
 	
 	private WavFileDataObject wavFile;
-	private long wavFileDuration;
 	
 	private Color backgroundColor;
 	private Color lineColor;
 	private Color pointColor;
+	private Color hilightColor;
+	private	HashSet<Integer> indexOfSamplesToHilight;
 
-	private long currentPoint;
-	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
 	/**
 	 * Der Konstruktor der Klasse {@link Model}. 
 	 */
-	public  Model(WavFileDataObject wavFile, int width, int height, int pointDiameter, Color backgroundColor, Color lineColor, Color pointColor) {
+	public  Model(WavFileDataObject wavFile, int width, int height, int pointDiameter, Color backgroundColor, Color lineColor, Color pointColor, Color hilightColor) {
 		//Datenfelder initialisieren
 		this.minWidth = width;
 		this.minHeight = height;
@@ -41,11 +42,10 @@ public class Model implements ViewModel {
 		this.backgroundColor = backgroundColor;
 		this.lineColor = lineColor;
 		this.pointColor = pointColor;
+		this.hilightColor = hilightColor;
 		this.wavFile = wavFile;
 		
-		wavFileDuration = 0;
-		
-		currentPoint = 0;
+		indexOfSamplesToHilight = new HashSet<Integer>();
 	}
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
@@ -72,10 +72,6 @@ public class Model implements ViewModel {
 		return wavFile;
 	}
 	
-	public long getWavFileDuration() {
-		return wavFileDuration;
-	}
-
 	public Color getBackgroundColor() {
 		return backgroundColor;
 	}
@@ -87,16 +83,36 @@ public class Model implements ViewModel {
 	public Color getPointColor() {
 		return pointColor;
 	}
+	
+	public Color getHilightColor() {
+		return hilightColor;
+	}
 
-	public long getCurrentPoint() {
-		return currentPoint;
+	public HashSet<Integer> getIndexOfSamplesToHilight() {
+		return indexOfSamplesToHilight;
+	}
+	
+	public int[] getIndexOfStartAndEndSample() {
+		int[] indexOfStartAndEndSample;
+		
+		if (indexOfSamplesToHilight.size() >= 2) {
+			Integer[] array = new Integer[2];
+			indexOfSamplesToHilight.toArray(array);
+			indexOfStartAndEndSample = new int[]{array[0], array[1]};
+		} else {
+			indexOfStartAndEndSample = new int[]{0, wavFile.getNumberOfFrames()};
+		}
+		
+		
+		// das Array der Größe nach sortieren
+		Arrays.sort(indexOfStartAndEndSample);
+		System.out.println(indexOfStartAndEndSample[0] + "  " + indexOfStartAndEndSample[1]);
+		return indexOfStartAndEndSample;
 	}
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
-	
-	
-	
+
 	
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	
 	

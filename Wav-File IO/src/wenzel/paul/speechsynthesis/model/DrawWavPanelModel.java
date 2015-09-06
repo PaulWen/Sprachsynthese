@@ -1,6 +1,7 @@
 package wenzel.paul.speechsynthesis.model;
 
 import java.awt.Color;
+import java.util.HashSet;
 
 import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
 
@@ -10,18 +11,22 @@ public interface DrawWavPanelModel {
 	public int getMinHeight();
 	public int getPointDiameter();
 	
-	/** die Werte die als Punkte eingezeichnet werden sollen (komplett verteilt auf die gesammte verf�gbare Breite) */
+	/** die Werte die als Punkte eingezeichnet werden sollen (komplett verteilt auf die gesammte verfügbare Breite) */
 	public WavFileDataObject getWavFile();
-	/** wie vielen Millisekunden die WAV Datei lang ist */
-	public long getWavFileDuration();
 	
 	/** Farbe vom Hintergrund */
 	public Color getBackgroundColor(); 
 	/** Farbe in welcher die Linie gemalt wird */
 	public Color getLineColor(); 
-	/** Farbe in welcher die unkte gemalt werden */
+	/** Farbe in welcher die Punkte gemalt werden sollen */
 	public Color getPointColor();
+	/** die Farbe in welcher die hervorzuhebenden Punkte gemalt werden sollen */
+	public Color getHilightColor();
 	
-	/** der Index vom Wert, welcher gerade gespielt wird */ 
-	public long getCurrentPoint();
+	/**
+	 * Die Methode gibt eine ArrayList mit den Indizes aller Samples aus, welche graphisch hervorgehoben werden sollen.
+	 * 
+	 * @return ArrayList mit den Indizes der Samples, welche grafisch hervorgehoben werden sollen.
+	 */
+	public HashSet<Integer> getIndexOfSamplesToHilight();
 }

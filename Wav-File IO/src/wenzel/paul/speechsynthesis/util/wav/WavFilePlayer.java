@@ -7,7 +7,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
+import wenzel.paul.speechsynthesis.model.WavFilePlayerModel;
 
 /**
  * Die Klasse {@link WavFilePlayer} [...]
@@ -33,8 +33,13 @@ public class WavFilePlayer {
 	/** der Status vom Player (siehe Konstanten der Klasse {@link WavFilePlayer}) */
 	private int state;
 	
-	/** das {@link WavFileDataObject}, welches die wiederzugebende WAV-Datei repräsentiert */
-	private WavFileDataObject wavFileDataObject;
+	/** das {@link model.getWavFile()}, welches die wiederzugebende WAV-Datei repräsentiert */
+	private WavFilePlayerModel model;
+	
+	/** der Index vom ersten wiederzugebenden Frame */
+	private int startFrameIndex;
+	/** der Index vom letzten wiederzugebenden Frame */
+	private int stopFrameIndex;
 	
 	/** der Thread, in welchem die Wiedergabe statt finden soll */
 	private Thread loadDataThread;
@@ -61,9 +66,9 @@ public class WavFilePlayer {
 	/**
 	 * Der Konstruktor der Klasse {@link WavFilePlayer}. 
 	 */
-	public WavFilePlayer(WavFileDataObject wavFileDataObject) {
+	public WavFilePlayer(WavFilePlayerModel model) {
 		// Datenfelder initialisieren
-		this.wavFileDataObject = wavFileDataObject;
+		this.model = model;
 		
 		indexOfPlaybackPosition = 0;
 		state = WavFilePlayer.PAUSED;
@@ -71,10 +76,10 @@ public class WavFilePlayer {
 		loadDataThread = null;
 		watchPlaybackThread = null;
 		
-		wavAudioFormat = new AudioFormat(Encoding.PCM_SIGNED, wavFileDataObject.getSampleRate(),
-				wavFileDataObject.getBytesPerSample() * 8, wavFileDataObject.getNumberOfChannels(),
-				wavFileDataObject.getBytesPerSample() * wavFileDataObject.getNumberOfChannels(),
-				wavFileDataObject.getSampleRate() * wavFileDataObject.getNumberOfChannels(), false);
+		wavAudioFormat = new AudioFormat(Encoding.PCM_SIGNED, model.getWavFile().getSampleRate(),
+				model.getWavFile().getBytesPerSample() * 8, model.getWavFile().getNumberOfChannels(),
+				model.getWavFile().getBytesPerSample() * model.getWavFile().getNumberOfChannels(),
+				model.getWavFile().getSampleRate() * model.getWavFile().getNumberOfChannels(), false);
 		sourceLine = null;
 				
 		// Soundwiedergabe vorbereiten
@@ -100,6 +105,22 @@ public class WavFilePlayer {
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
 	/**
+	 * Die Methode sorgt dafür, dass der gewünschte Intervall wiedergegeben wird.
+	 */
+	private void updatePlaybackIntervall() {
+		System.out.println("HALLO");
+		// falls sich der gewünschte Intervall verändert hat, diese Änderungen übernehmen
+		if (model.getIndexOfStartAndEndSample()[0] != startFrameIndex) {
+			startFrameIndex = model.getIndexOfStartAndEndSample()[0];
+			indexOfPlaybackPosition = startFrameIndex;
+		}
+		if (model.getIndexOfStartAndEndSample()[1] != stopFrameIndex) {
+			stopFrameIndex = model.getIndexOfStartAndEndSample()[1];
+			indexOfPlaybackPosition = startFrameIndex;
+		}
+	}
+	
+	/**
 	 * Die Methode bereitet alle Threads etc. vor, damit eine Wiedergabe gestartet werden kann.
 	 */
 	private void preparePlayback() {
@@ -123,7 +144,7 @@ public class WavFilePlayer {
 		}
 		loadDataThread = new Thread(new Runnable() {
 			public void run() {
-				loadFramesIntoSourceLine(indexOfPlaybackPosition, wavFileDataObject.getNumberOfFrames() - indexOfPlaybackPosition);
+				loadFramesIntoSourceLine();
 			}
 		});
 		
@@ -163,17 +184,18 @@ public class WavFilePlayer {
 	
 	/**
 	 * Die Methode sorgt dafür, dass gewünschte Frames für die Wiedergabe in die SourceLine geladen werden.
-	 * 
-	 * @param indexOfNextFrameToLoad der Index vom Start-Frame
-	 * @param numberOfFramesToLoad wie viele Frames, vom Start-Frame ausgehend, geladen werden sollen
 	 */
-	private void loadFramesIntoSourceLine(int indexOfNextFrameToLoad, int numberOfFramesToLoad) {
+	private void loadFramesIntoSourceLine() {
+		System.out.println("hi");
+		// die Anzahl an Frames, welche wiedergegeben werden soll
+		int numberOfFramesToPlay = stopFrameIndex - startFrameIndex;
+		
 		// Anzahl der Frames, welche übersprungen werden sollen
-		int offset = indexOfNextFrameToLoad;
+		int offset = indexOfPlaybackPosition;
 		
 		// solange der Thread nicht unterbrochen wurde und noch nicht alle Frames geladen wurden
 		// weiter die nächsten Frames laden
-		while (!Thread.currentThread().isInterrupted()  && numberOfFramesToLoad - (indexOfNextFrameToLoad - offset) > 0) {
+		while (!Thread.currentThread().isInterrupted()  && numberOfFramesToPlay - (indexOfPlaybackPosition - offset) > 0) {
 		//+++++berechnen wie viele Samples geladen werden sollen+++++//
 			
 			// wenn der Buffer für die Soundwiedergabe noch nicht voll ist und noch nicht alle Frames geladen wurden,
@@ -183,8 +205,8 @@ public class WavFilePlayer {
 				
 					
 				// wenn weniger als die maximale Anzahl an auf einmal zu konvertierenden Frames noch vorhanden sind
-				if (numberOfFramesToLoad - (indexOfNextFrameToLoad - offset) < MAX_SAMPLES_TO_CONVERT) {
-					numberOfFramesToConvert = numberOfFramesToLoad - (indexOfNextFrameToLoad - offset);
+				if (numberOfFramesToPlay - (indexOfPlaybackPosition - offset) < MAX_SAMPLES_TO_CONVERT) {
+					numberOfFramesToConvert = numberOfFramesToPlay - (indexOfPlaybackPosition - offset);
 					
 				// wenn noch mehr als die maximale Anzahl an auf einmal zu konvertierenden Frames noch vorhanden sind
 				} else {
@@ -198,13 +220,13 @@ public class WavFilePlayer {
 				
 				//+++++Bytes laden+++++//
 				// die nächsten Bytes laden
-				byte[] values = doubleValuesToByte(wavFileDataObject.getWavFileValues(), wavFileDataObject.getNumberOfChannels(),
-						wavFileDataObject.getValidBits(), wavFileDataObject.getBytesPerSample(),
-						indexOfNextFrameToLoad, numberOfFramesToConvert);
+				byte[] values = doubleValuesToByte(model.getWavFile().getWavFileValues(), model.getWavFile().getNumberOfChannels(),
+						model.getWavFile().getValidBits(), model.getWavFile().getBytesPerSample(),
+						indexOfPlaybackPosition, numberOfFramesToConvert);
 				
 				//+++++Bytes in die AudioLine laden+++++//
 				sourceLine.write(values, 0, values.length);
-				indexOfNextFrameToLoad += numberOfFramesToConvert;
+				indexOfPlaybackPosition += numberOfFramesToConvert;
 			}
 		}
 	}
@@ -214,7 +236,7 @@ public class WavFilePlayer {
 	 */
 	public void stop() {
 		pause();
-		indexOfPlaybackPosition = 0;
+		indexOfPlaybackPosition = model.getIndexOfStartAndEndSample()[0];
 	}
 	
 	/**
@@ -224,6 +246,9 @@ public class WavFilePlayer {
 		if (state != WavFilePlayer.PLAYS) {
 			// Status updaten
 			state = WavFilePlayer.PLAYS;
+
+			// gucken, ob das bekannte WiedergabeIntervall auch das gewünschte ist
+			updatePlaybackIntervall();
 
 			// die Wiedergabe starten
 			sourceLine.start();
@@ -251,8 +276,8 @@ public class WavFilePlayer {
 			loadDataThread.interrupt();
 
 			// wenn die Wiedergabe am Ende angelangt ist, sie auf Anfang zurücksetzen
-			if (indexOfPlaybackPosition + sourceLine.getFramePosition() >= wavFileDataObject.getNumberOfFrames()) {
-				indexOfPlaybackPosition = 0;
+			if (indexOfPlaybackPosition + sourceLine.getFramePosition() >= model.getWavFile().getNumberOfFrames()) {
+				indexOfPlaybackPosition = model.getIndexOfStartAndEndSample()[0];
 			} else {
 				indexOfPlaybackPosition += sourceLine.getFramePosition();
 			}

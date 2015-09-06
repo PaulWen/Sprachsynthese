@@ -4,12 +4,16 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
+import wenzel.paul.speechsynthesis.controller.listener.DrawWavPanelListener;
 import wenzel.paul.speechsynthesis.model.DrawWavPanelModel;
 
 
@@ -37,7 +41,7 @@ public class DrawWavPanel extends JPanel {
 	
 /////////////////////////////////////////////Konstruktor///////////////////////////////////////////////////////
 
-	public DrawWavPanel(DrawWavPanelModel model) {
+	public DrawWavPanel(final DrawWavPanelModel model, final DrawWavPanelListener listener) {
 		//Datenfelder initialisieren
 		this.model = model;
 		
@@ -46,6 +50,27 @@ public class DrawWavPanel extends JPanel {
 		
 		setPreferredSize(new Dimension(model.getMinWidth(), model.getMinHeight()));
 		currentSize = new Dimension(getWidth(), getHeight());
+		
+		
+		//MouseListener implementieren, welcher mitbekommt, wenn ein Sample angeklickt wurde
+		this.addMouseListener(new MouseAdapter() {
+		
+			@Override
+			public void mouseClicked(MouseEvent event) {
+				// prüfen, ob ein Sample angeklickt wurde
+				int indexOfSample = 0;
+				Iterator<Point> pointsIterator = points.iterator();
+				while (pointsIterator.hasNext()) {
+					Point point = pointsIterator.next();
+					if (event.getPoint().distance(point.getX(), point.getY()) <= model.getPointDiameter()*2) {
+						listener.sampleClicked(indexOfSample);
+						return;
+					}
+					indexOfSample++;
+				}
+			}
+			
+		});
 	}
 
 /////////////////////////////////////////////Getter und Setter////////////////////////////////////////////////
@@ -112,6 +137,15 @@ public class DrawWavPanel extends JPanel {
 		for (Point point : points) {
 			if (viewPort.contains(point)) {
 				g.fillOval((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
+			}
+		}
+		
+		// zeichne die Punkte, welche hervorgehoben werden sollen
+		g.setColor(model.getHilightColor());
+		for (int index : model.getIndexOfSamplesToHilight()) {
+			Point point = points.get(index);
+			if (viewPort.contains(point)) {
+				g.fillRect((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
 			}
 		}
 	}
