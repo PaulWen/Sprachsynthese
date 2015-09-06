@@ -1,4 +1,4 @@
 TODOs:
 
 PlayBackfunktion einbauen
-	1. Player anbinden, welcher aus dem Model wiedergibt
+	1. Start- und End-Frame für die Wiedergabe auswählen können

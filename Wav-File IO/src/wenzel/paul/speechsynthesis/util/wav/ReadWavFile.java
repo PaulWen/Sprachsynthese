@@ -201,6 +201,14 @@ public class ReadWavFile {
 				// Calculate the number of frames
 				numberOfFrames = chunkSize / blockAlign;
 				
+//				// Diese Zeilen habe ich nur gebraucht, da ich WAV-Dateien geladen habe, welche im Header
+//				// falsche Angaben hatten. In den nächsten Zeilen habe ich die Angaben korrigiert. 
+//				numberOfFrames *= numberOfChannels;
+//				blockAlign /= numberOfChannels;
+//				bytesPerSample /= numberOfChannels;
+//				sampleRate *= numberOfChannels;
+//				numberOfChannels = 1;
+				
 				// Flag that we've found the wave data chunk
 				foundData = true;
 				
@@ -292,16 +300,15 @@ public class ReadWavFile {
 	{
 											
 		double[][] values = new double[numberOfChannels][numberOfFrames];
-		int offset = 0;
-		
+
+		long[] longValues = readSample(wavFileInputStream, bytesPerSample, numberOfFrames, numberOfChannels);
 		// für alle Frames
-		for (long frame : readSample(wavFileInputStream, bytesPerSample, numberOfFrames, numberOfChannels)) {
+		for (int offset = 0; offset < numberOfFrames; offset++) {
 			// für alle Channels
 			for (int channel = 0; channel < numberOfChannels; channel++) {
 				values[channel][offset] = floatOffset
-						+ (double) frame / floatScale;
+						+ (double) longValues[offset + channel] / floatScale;
 			}
-			offset++;
 		}
 		
 		return values;
@@ -347,6 +354,7 @@ public class ReadWavFile {
 			bytesRead= wavFileInputStream.read(buffer, 0, BUFFER_SIZE);
 		}
 		
+		System.out.println(samples.length);
 		return samples;
 	}
 	
