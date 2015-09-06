@@ -83,8 +83,7 @@ public class Main implements ViewListener {
 	}
 	
 	public void stopPlayback() {
-		player.pause();
-		player.setIndexOfPosition(0);
+		player.stop();
 	}
 
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////

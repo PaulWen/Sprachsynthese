@@ -5,12 +5,7 @@ import java.io.File;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Control;
-import javax.sound.sampled.Control.Type;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.Line;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
@@ -23,7 +18,7 @@ import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
  * @author Paul Wenzel
  *
  */
-public class WavFilePlayer implements LineListener {
+public class WavFilePlayer {
 
 //////////////////////////////////////////////////Konstanten//////////////////////////////////////////////////
 
@@ -46,6 +41,15 @@ public class WavFilePlayer implements LineListener {
 	/** der Thread, in welchem die Wiedergabe statt finden soll */
 	private Thread loadDataThread;
 	
+	/** 
+	 * Der Thread wartet, bis die Wiedergabe gestoppt wird und führt danach alle nötigen Schritte aus,
+	 * um alles für die nächste Wiedergabe vorzubereiten.
+	 * 
+	 * (Für diese Aufgabe muss leider ein eigener Thread fungieren, da der LineListener leider nicht wie 
+	 * versprochen bescheid sagt, wenn die Wiedergabe zu Ende ist.)
+	 */
+	private Thread watchPlayback;
+	
 	/** der Index des als nächstes wiederzugebenden Frames */
 	private int indexOfPlaybackPosition;
 	
@@ -67,166 +71,18 @@ public class WavFilePlayer implements LineListener {
 		indexOfPlaybackPosition = 0;
 		state = WavFilePlayer.PAUSED;
 		
-		
-		
 		// Soundwiedergabe vorbereiten
 		try {
-			 File soundFile = wavFileDataObject.getFile();
-			 AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
-			 audioFormat = audioStream.getFormat();
+			File soundFile = wavFileDataObject.getFile();
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+			audioFormat = audioStream.getFormat();
 			info = new DataLine.Info(SourceDataLine.class, audioFormat);
-//			 sourceLine = (SourceDataLine) AudioSystem.getLine(info);
-//			 sourceLine.addLineListener(this);
-//			 sourceLine.open(audioFormat);
-			
-			
-			
-			final SourceDataLine testSourceLine =((SourceDataLine) AudioSystem.getLine(info));
-			 sourceLine = new SourceDataLine() {
-				
-				public void removeLineListener(LineListener listener) {
-						testSourceLine.removeLineListener(listener);
-					
-					System.out.println("removeLineListener");
-					
-				}
-				
-				public void open() throws LineUnavailableException {
-					try {
-						testSourceLine.open();
-					} catch (LineUnavailableException e) {
-						e.printStackTrace();
-					}
-					System.out.println("open");
-					
-				}
-				
-				public boolean isOpen() {
-					System.out.println("isOpen");
-						return	testSourceLine.isOpen();
-				}
-				
-				public boolean isControlSupported(Type control) {
-					System.out.println("isControlSupported");
-						return testSourceLine.isControlSupported(control);
-				}
-				
-				public Line.Info getLineInfo() {
-						System.out.println("getLineInfo");
-						return	testSourceLine.getLineInfo();
-				}
-				
-				public Control[] getControls() {
-					System.out.println("getControls");
-						return	testSourceLine.getControls();
-				}
-				
-				public Control getControl(Type control) {
-					System.out.println("getControl");
-					return testSourceLine.getControl(control);
-				}
-				
-				public void close() {
-					System.out.println("close");
-						testSourceLine.close();
-				}
-				
-				public void addLineListener(LineListener listener) {
-					System.out.println("addLineListener");
-						testSourceLine.addLineListener(listener);
-				}
-				
-				public void stop() {
-					System.out.println("stop");
-						testSourceLine.stop();
-				}
-				
-				public void start() {
-					System.out.println("start");
-						testSourceLine.start();
-				}
-				
-				public boolean isRunning() {
-					System.out.println("isRunning");
-						return testSourceLine.isRunning();
-				}
-				
-				public boolean isActive() {
-					System.out.println("isActive");
-						return testSourceLine.isActive();
-				}
-				
-				public long getMicrosecondPosition() {
-					System.out.println("getMicrosecondPosition");
-						return testSourceLine.getMicrosecondPosition();
-				}
-				
-				public long getLongFramePosition() {
-					System.out.println("getLongFramePosition");
-						return testSourceLine.getLongFramePosition();
-				}
-				
-				public float getLevel() {
-					System.out.println("getLevel");
-						return testSourceLine.getLevel();
-				}
-				
-				public int getFramePosition() {
-					System.out.println("getFramePosition");
-					return testSourceLine.getFramePosition();
-				}
-				
-				public AudioFormat getFormat() {
-					System.out.println("getFormat");
-						return testSourceLine.getFormat();
-				}
-				
-				public int getBufferSize() {
-					System.out.println("getBufferSize");
-						return testSourceLine.getBufferSize();
-				}
-				
-				public void flush() {
-					System.out.println("flush");
-						testSourceLine.flush();
-				}
-				
-				public void drain() {
-					System.out.println("drain");
-						testSourceLine.drain();
-				}
-				
-				public int available() {
-					System.out.println("available");
-						return testSourceLine.available();
-				}
-				
-				public int write(byte[] b, int off, int len) {
-					System.out.println("write");
-						return testSourceLine.write(b, off, len);
-				}
-				
-				public void open(AudioFormat format, int bufferSize) throws LineUnavailableException {
-					System.out.println("open(AudioFormat format, int bufferSize)");
-						testSourceLine.open(format, bufferSize);
-				}
-				
-				public void open(AudioFormat format) throws LineUnavailableException {
-					System.out.println("open(AudioFormat format)");
-						testSourceLine.open(format);
-				}
-			};
-			sourceLine.addLineListener(this);
-			sourceLine.open(audioFormat);
-			 
-			 
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		
+		preparePlayback();
 	}
 	
 	
@@ -234,28 +90,90 @@ public class WavFilePlayer implements LineListener {
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
 	
 	/**
-	 * Über die Methode kann der Startpunkt für die Wiedergabe festgelegt werden.
+	 * Die Methode gibt den Status (siehe Konstanten der Klasse {@link WavFilePlayer}) vom Player aus.
 	 * 
-	 * @param indexOfPosition der Index vom Frame, bei welchem die WIedergabe gestartet werden soll
+	 * @return Status vom Player (siehe Konstanten der Klasse {@link WavFilePlayer})
 	 */
-	public void setIndexOfPosition(int indexOfPosition) {
-		this.indexOfPlaybackPosition = indexOfPosition;
-	}
-	
 	public int getState() {
 		return state;
 	}
 	
-	
 ///////////////////////////////////////////////geerbte Methoden//////////////////////////////////////////////
 	
-	public void update(LineEvent event) {
-		System.out.println("Event: " + event);
-	}
+
+	
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
-	private void loadFramesIntoAudioLine(int indexOfNextFrameToLoad, int numberOfFramesToLoad) {
+	/**
+	 * Die Methode bereitet alle Threads etc. vor, damit eine Wiedergabe gestartet werden kann.
+	 */
+	private void preparePlayback() {
+		// neue Source Line aufbauen
+		if (sourceLine != null) {
+			sourceLine.flush();
+			sourceLine.close();
+			sourceLine = null;
+		}
+		try {
+			sourceLine = null;
+			sourceLine = (SourceDataLine) AudioSystem.getLine(info);
+			sourceLine.open(audioFormat);
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();
+		}
+		
+		// Daten lade Thread aufbauen
+		if (loadDataThread != null) {
+			loadDataThread = null;
+		}
+		loadDataThread = new Thread(new Runnable() {
+			public void run() {
+				loadFramesIntoSourceLine(indexOfPlaybackPosition, wavFileDataObject.getNumberOfFrames() - indexOfPlaybackPosition);
+			}
+		});
+		
+		// Watch Thread aufbauen
+		if (watchPlayback != null) {
+			watchPlayback = null;
+		}
+		watchPlayback = new Thread(new Runnable() {
+			public void run() {
+				
+				// diese Pause ist nötig, da ansonsten die Wiedergabe noch nicht gestartet wurde und somit die drain-methode
+				// (siehe wieter unten) direkt returnen würde und somit die Wiedergabe direkt wieder pausiert werden würde
+				try {
+					Thread.currentThread().sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				// die Methdoe returned erst, wenn alle im Buffer vorhandenen Daten komplett ausgegeben wurden
+				sourceLine.drain();
+
+				// die Pause ist nötig, da wenn mitten in der Wiedergabe pasusiert wird zwei mal pausiert wird
+				// 1. durch den Nutzer (über den Button)
+				// 2. vom Wiedergabe-Überwachungs-Thread (diesem hier), da er sieht, das die WIedergaeb beendet wurde
+				try {
+					Thread.currentThread().sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				// die Wiedergabe pausieren
+				pause();
+			}
+		});
+		
+	}
+	
+	/**
+	 * Die Methode sorgt dafür, dass gewünschte Frames für die Wiedergabe in die SourceLine geladen werden.
+	 * 
+	 * @param indexOfNextFrameToLoad der Index vom Start-Frame
+	 * @param numberOfFramesToLoad wie viele Frames, vom Start-Frame ausgehend, geladen werden sollen
+	 */
+	private void loadFramesIntoSourceLine(int indexOfNextFrameToLoad, int numberOfFramesToLoad) {
 		// Anzahl der Frames, welche übersprungen werden sollen
 		int offset = indexOfNextFrameToLoad;
 		
@@ -295,8 +213,14 @@ public class WavFilePlayer implements LineListener {
 				indexOfNextFrameToLoad += numberOfFramesToConvert;
 			}
 		}
-		sourceLine.drain();
-		System.out.println("zuende");
+	}
+	
+	/**
+	 * Die Methode stoppt die Wiedergabe und legt als aktuelle Wiedergabeposition den Anfang der Datei fest.
+	 */
+	public void stop() {
+		pause();
+		indexOfPlaybackPosition = 0;
 	}
 	
 	/**
@@ -304,54 +228,43 @@ public class WavFilePlayer implements LineListener {
 	 */
 	public void play() {
 		if (state != WavFilePlayer.PLAYS) {
-			System.out.println("play: " + indexOfPlaybackPosition);
-			// Daten lade Thread starten
-			loadDataThread = new Thread(new Runnable() {
-				public void run() {
-					loadFramesIntoAudioLine(indexOfPlaybackPosition, wavFileDataObject.getNumberOfFrames() - indexOfPlaybackPosition);
-				}
-			});
-			loadDataThread.start();
-			
+			// Status updaten
+			state = WavFilePlayer.PLAYS;
+
 			// die Wiedergabe starten
 			sourceLine.start();
-			state = WavFilePlayer.PLAYS;
+			
+			// Daten laden (starten)
+			loadDataThread.start();
+			
+			// Überwachen wann die Wiedergabe zuende ist (starten)
+			watchPlayback.start();
 		}
 	}
 	
 	/**
-	 * Die Methdoe pasusiert die Wiedergabe an der aktuellen Position.
+	 * Die Methode pausiert die Wiedergabe an der aktuellen Position.
 	 */
 	public void pause() {
 		if (state != WavFilePlayer.PAUSED) {
+			// Status updaten
+			state = WavFilePlayer.PAUSED;
+
 			// Wiedergabe pausieren
 			sourceLine.stop();
+			
 			//Daten lade Thread stoppen
 			loadDataThread.interrupt();
 
-			
 			// wenn die Wiedergabe am Ende angelangt ist, sie auf Anfang zurücksetzen
 			if (indexOfPlaybackPosition + sourceLine.getFramePosition() >= wavFileDataObject.getNumberOfFrames()) {
 				indexOfPlaybackPosition = 0;
 			} else {
 				indexOfPlaybackPosition += sourceLine.getFramePosition();
 			}
-			System.out.println("pause: " + indexOfPlaybackPosition);
-
-			// für den nächsten Start alles vorbereiten
-			sourceLine.flush();
 			
-			try {
-				sourceLine = null;
-				sourceLine = (SourceDataLine) AudioSystem.getLine(info);
-				sourceLine.addLineListener(this);
-			 	sourceLine.open(audioFormat);
-			} catch (LineUnavailableException e) {
-				e.printStackTrace();
-			}
-			
-			// Status updaten
-			state = WavFilePlayer.PAUSED;
+			// alles für die nächste Wiedergabe vorbereiten
+			preparePlayback();
 		}
 	}
 	
