@@ -354,7 +354,6 @@ public class ReadWavFile {
 			bytesRead= wavFileInputStream.read(buffer, 0, BUFFER_SIZE);
 		}
 		
-		System.out.println(samples.length);
 		return samples;
 	}
 	

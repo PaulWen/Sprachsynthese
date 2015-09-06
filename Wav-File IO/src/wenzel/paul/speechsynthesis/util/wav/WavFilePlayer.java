@@ -1,9 +1,7 @@
 package wenzel.paul.speechsynthesis.util.wav;
 
-import java.io.File;
-
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
@@ -48,7 +46,7 @@ public class WavFilePlayer {
 	 * (Für diese Aufgabe muss leider ein eigener Thread fungieren, da der LineListener leider nicht wie 
 	 * versprochen bescheid sagt, wenn die Wiedergabe zu Ende ist.)
 	 */
-	private Thread watchPlayback;
+	private Thread watchPlaybackThread;
 	
 	/** der Index des als nächstes wiederzugebenden Frames */
 	private int indexOfPlaybackPosition;
@@ -56,8 +54,7 @@ public class WavFilePlayer {
 	/** hier wird der Sound ausgegeben */
 	private SourceDataLine sourceLine;
 	
-	private AudioFormat audioFormat;
-	private DataLine.Info info;
+	private AudioFormat wavAudioFormat;
 	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
@@ -65,27 +62,24 @@ public class WavFilePlayer {
 	 * Der Konstruktor der Klasse {@link WavFilePlayer}. 
 	 */
 	public WavFilePlayer(WavFileDataObject wavFileDataObject) {
-		//Datenfelder initialisieren
+		// Datenfelder initialisieren
 		this.wavFileDataObject = wavFileDataObject;
 		
 		indexOfPlaybackPosition = 0;
 		state = WavFilePlayer.PAUSED;
 		
-		// Soundwiedergabe vorbereiten
-		try {
-			File soundFile = wavFileDataObject.getFile();
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
-			audioFormat = audioStream.getFormat();
-			info = new DataLine.Info(SourceDataLine.class, audioFormat);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
+		loadDataThread = null;
+		watchPlaybackThread = null;
 		
+		wavAudioFormat = new AudioFormat(Encoding.PCM_SIGNED, wavFileDataObject.getSampleRate(),
+				wavFileDataObject.getBytesPerSample() * 8, wavFileDataObject.getNumberOfChannels(),
+				wavFileDataObject.getBytesPerSample() * wavFileDataObject.getNumberOfChannels(),
+				wavFileDataObject.getSampleRate() * wavFileDataObject.getNumberOfChannels(), false);
+		sourceLine = null;
+				
+		// Soundwiedergabe vorbereiten
 		preparePlayback();
 	}
-	
-	
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
 	
@@ -117,8 +111,8 @@ public class WavFilePlayer {
 		}
 		try {
 			sourceLine = null;
-			sourceLine = (SourceDataLine) AudioSystem.getLine(info);
-			sourceLine.open(audioFormat);
+			sourceLine = (SourceDataLine) AudioSystem.getLine(new DataLine.Info(SourceDataLine.class, wavAudioFormat));
+			sourceLine.open(wavAudioFormat);
 		} catch (LineUnavailableException e) {
 			e.printStackTrace();
 		}
@@ -134,10 +128,10 @@ public class WavFilePlayer {
 		});
 		
 		// Watch Thread aufbauen
-		if (watchPlayback != null) {
-			watchPlayback = null;
+		if (watchPlaybackThread != null) {
+			watchPlaybackThread = null;
 		}
-		watchPlayback = new Thread(new Runnable() {
+		watchPlaybackThread = new Thread(new Runnable() {
 			public void run() {
 				
 				// diese Pause ist nötig, da ansonsten die Wiedergabe noch nicht gestartet wurde und somit die drain-methode
@@ -238,7 +232,7 @@ public class WavFilePlayer {
 			loadDataThread.start();
 			
 			// Überwachen wann die Wiedergabe zuende ist (starten)
-			watchPlayback.start();
+			watchPlaybackThread.start();
 		}
 	}
 	

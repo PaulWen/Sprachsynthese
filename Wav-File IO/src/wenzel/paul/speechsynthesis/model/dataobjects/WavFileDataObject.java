@@ -1,7 +1,5 @@
 package wenzel.paul.speechsynthesis.model.dataobjects;
 
-import java.io.File;
-
 /**
  * Die Klasse {@link WavFileDataObject} [...]
  * 
@@ -95,9 +93,6 @@ public class WavFileDataObject {
 		return (validBits + 7) / 8;
 	}
 
-	public File getFile() {
-		return new File("C:/Users/Wenze/Desktop/Java Workspace/Sprachsynthese/Wav-File IO/res/wav_examples/long.wav");
-	}
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	
 	
 	
