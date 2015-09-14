@@ -108,7 +108,6 @@ public class WavFilePlayer {
 	 * Die Methode sorgt dafür, dass der gewünschte Intervall wiedergegeben wird.
 	 */
 	private void updatePlaybackIntervall() {
-		System.out.println("HALLO");
 		// falls sich der gewünschte Intervall verändert hat, diese Änderungen übernehmen
 		if (model.getIndexOfStartAndEndSample()[0] != startFrameIndex) {
 			startFrameIndex = model.getIndexOfStartAndEndSample()[0];
@@ -166,7 +165,7 @@ public class WavFilePlayer {
 				// die Methdoe returned erst, wenn alle im Buffer vorhandenen Daten komplett ausgegeben wurden
 				sourceLine.drain();
 
-				// die Pause ist nötig, da wenn mitten in der Wiedergabe pasusiert wird zwei mal pausiert wird
+				// die Pause ist nötig, da wenn mitten in der Wiedergabe pausiert wird zwei mal pausiert wird
 				// 1. durch den Nutzer (über den Button)
 				// 2. vom Wiedergabe-Überwachungs-Thread (diesem hier), da er sieht, das die WIedergaeb beendet wurde
 				try {
@@ -186,7 +185,6 @@ public class WavFilePlayer {
 	 * Die Methode sorgt dafür, dass gewünschte Frames für die Wiedergabe in die SourceLine geladen werden.
 	 */
 	private void loadFramesIntoSourceLine() {
-		System.out.println("hi");
 		// die Anzahl an Frames, welche wiedergegeben werden soll
 		int numberOfFramesToPlay = stopFrameIndex - startFrameIndex;
 		
@@ -276,8 +274,15 @@ public class WavFilePlayer {
 			loadDataThread.interrupt();
 
 			// wenn die Wiedergabe am Ende angelangt ist, sie auf Anfang zurücksetzen
-			if (indexOfPlaybackPosition + sourceLine.getFramePosition() >= model.getWavFile().getNumberOfFrames()) {
+			if (indexOfPlaybackPosition + sourceLine.getFramePosition() >= model.getIndexOfStartAndEndSample()[1]) {
 				indexOfPlaybackPosition = model.getIndexOfStartAndEndSample()[0];
+				
+				// wenn die Wiedergabe geloopt werden soll, die Wiedergabe direkt fortsetzen
+				if (model.loopPlayBack()) {
+					preparePlayback();
+					play();
+					return;
+				}
 			} else {
 				indexOfPlaybackPosition += sourceLine.getFramePosition();
 			}
@@ -332,7 +337,6 @@ public class WavFilePlayer {
 		
 		return buffer;
 	}
-	
 	
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	
 	

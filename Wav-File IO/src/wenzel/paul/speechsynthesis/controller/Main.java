@@ -3,6 +3,7 @@ package wenzel.paul.speechsynthesis.controller;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -57,7 +58,6 @@ public class Main implements ViewListener {
 	
 	
 	
-	
 ///////////////////////////////////////////////geerbte Methoden//////////////////////////////////////////////
 	
 	public void openWavFile() {
@@ -95,6 +95,15 @@ public class Main implements ViewListener {
 		view.repaint();
 	}
 
+	public void resetSelectedSamples() {
+		model.setIndexOfSamplesToHilight(new HashSet<Integer>()); 
+		view.repaint();
+	}
+	
+	public void loopPlayback(boolean loopPlayback) {
+		model.setLoopPlayback(loopPlayback);
+	}
+	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
 	private void init() {

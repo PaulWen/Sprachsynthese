@@ -28,6 +28,8 @@ public class Model implements ViewModel, WavFilePlayerModel {
 	private Color pointColor;
 	private Color hilightColor;
 	private	HashSet<Integer> indexOfSamplesToHilight;
+	
+	private boolean loopPlayback;
 
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
@@ -46,12 +48,21 @@ public class Model implements ViewModel, WavFilePlayerModel {
 		this.wavFile = wavFile;
 		
 		indexOfSamplesToHilight = new HashSet<Integer>();
+		loopPlayback = false;
 	}
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
 	
 	public void setMinWidth(int width) {
 		this.minWidth = width;
+	}
+	
+	public void setLoopPlayback(boolean loopPlayback) {
+		this.loopPlayback = loopPlayback;
+	}
+	
+	public void setIndexOfSamplesToHilight(HashSet<Integer> indexOfSamplesToHilight) {
+		this.indexOfSamplesToHilight = indexOfSamplesToHilight;
 	}
 	
 ///////////////////////////////////////////////geerbte Methoden//////////////////////////////////////////////
@@ -106,8 +117,12 @@ public class Model implements ViewModel, WavFilePlayerModel {
 		
 		// das Array der Größe nach sortieren
 		Arrays.sort(indexOfStartAndEndSample);
-		System.out.println(indexOfStartAndEndSample[0] + "  " + indexOfStartAndEndSample[1]);
+		System.out.println("Start und End Frame:" + indexOfStartAndEndSample[0] + "  " + indexOfStartAndEndSample[1]);
 		return indexOfStartAndEndSample;
+	}
+	
+	public boolean loopPlayBack() {
+			return loopPlayback;
 	}
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////

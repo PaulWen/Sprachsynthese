@@ -24,8 +24,22 @@ public interface PlaybackControllPanelListener {
 	
 	/**
 	 * Die Methode beendet die Wiedergabe und geht zum Anfang der Datei. 
-	 * Beim nächsten Startetn wird die Wiedergabe von anfang an begonnen.
+	 * Beim nächsten Starten wird die Wiedergabe von Anfang an begonnen.
 	 */
 	public void stopPlayback();
+	
+	/**
+	 * Die Methode setzt die Auswahl an Samples zurück, so das keine Samples mehr ausgewählt sind.
+	 */
+	public void resetSelectedSamples();
+	
+	/**
+	 * Über die Methode kann angegeben werden, ob die Wiedergabe in einer Dauerschleife immer wieder
+	 * abgespielt werden soll  oder nach einem mal abspielen pausieren soll. 
+	 * 
+	 * @param loopPlayback true = die Wiedergabe soll geloopt werden <br>
+	 * 						false = die Wiedergabe soll nicht geloopt werden
+	 */
+	public void loopPlayback(boolean loopPlayback);
 	
 }

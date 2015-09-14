@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import wenzel.paul.speechsynthesis.controller.listener.PlaybackControllPanelListener;
@@ -22,6 +23,9 @@ public class PlaybackControllPanel extends JPanel {
 	
 	private JButton startPauseButton;
 	private JButton stopButton;
+	private JButton resetSelectedSamplesButton;
+	
+	private JCheckBox loopPlayBack;
 	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
@@ -49,12 +53,30 @@ public class PlaybackControllPanel extends JPanel {
 			}
 		});
 		
+		resetSelectedSamplesButton = new JButton("Auswahl der Samples zurücksetzen");
+		resetSelectedSamplesButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				listener.resetSelectedSamples();
+			}
+		});
+		
+		loopPlayBack = new JCheckBox("die Wiedergabe wiederhohlen");
+		loopPlayBack.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				listener.loopPlayback(((JCheckBox)e.getSource()).isSelected());
+			}
+		});
 		
 			//JPanel Konfigurieren
 		setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 			//Komponenten Hinzufügen
 		add(startPauseButton);
 		add(stopButton);
+		add(loopPlayBack);
+		add(resetSelectedSamplesButton);
+		
 	}
 		
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////

@@ -17,4 +17,12 @@ public interface WavFilePlayerModel {
 	 * @return das Start- und End-Sample für die Wiedergabe
 	 */
 	public int[] getIndexOfStartAndEndSample();
+	
+	/**
+	 * Die Methdoe gibt aus, ob die Wiedergabe geloopt werden soll oder nicht.
+	 * 
+	 * @return true = die Wiedergabe soll geloopt werden <br>
+	 * 			false = die Wiedergabe soll nicht geloopt werden
+	 */
+	public boolean loopPlayBack();
 }
