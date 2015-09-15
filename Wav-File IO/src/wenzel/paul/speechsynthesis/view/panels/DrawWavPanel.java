@@ -1,11 +1,14 @@
 package wenzel.paul.speechsynthesis.view.panels;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -24,7 +27,7 @@ import wenzel.paul.speechsynthesis.model.DrawWavPanelModel;
  * @author Paul Wenzel (wenzel.pagb@googlemail.com)
  *
  */
-public class DrawWavPanel extends JPanel {
+public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionListener {
 	
 /////////////////////////////////////////////Datenfelder deklarieren////////////////////////////////////////////
 
@@ -39,6 +42,9 @@ public class DrawWavPanel extends JPanel {
 	
 	private Dimension currentSize;
 	
+	/** die durch die Maus markierte Fläche innerhalb vom Panel */
+	private Rectangle markedArea;
+	
 /////////////////////////////////////////////Konstruktor///////////////////////////////////////////////////////
 
 	public DrawWavPanel(final DrawWavPanelModel model, final DrawWavPanelListener listener) {
@@ -51,6 +57,7 @@ public class DrawWavPanel extends JPanel {
 		setPreferredSize(new Dimension(model.getMinWidth(), model.getMinHeight()));
 		currentSize = new Dimension(getWidth(), getHeight());
 		
+		markedArea = new Rectangle(0, 0, 0, 0);
 		
 		//MouseListener implementieren, welcher mitbekommt, wenn ein Sample angeklickt wurde
 		this.addMouseListener(new MouseAdapter() {
@@ -71,6 +78,56 @@ public class DrawWavPanel extends JPanel {
 			}
 			
 		});
+		
+		//MouseListener implementieren, welche mitbekommt, wenn eine Fläche markiert wird
+		this.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				markedArea.setLocation(e.getX(), e.getY());
+				
+				System.out.println(e.getPoint());
+			}
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				markedArea.setSize(e.getX() - (int)markedArea.getLocation().getX(),
+						e.getY() - (int)markedArea.getLocation().getY());
+				
+				// gucken, welche Punkte alle markiert wurden
+				ArrayList<Integer> indexOfSelectedSamples = new ArrayList<Integer>();
+				
+				int indexOfSample = 0;
+				Iterator<Point> pointsIterator = points.iterator();
+				while (pointsIterator.hasNext()) {
+					Point point = pointsIterator.next();
+					if (markedArea.contains(point)) {
+						indexOfSelectedSamples.add(indexOfSample);
+						listener.sampleClicked(indexOfSample);
+					}
+					indexOfSample++;
+				}
+				
+				// Controller informieren
+				
+				// neu zeichnen ohne das Rechteck
+				markedArea = new Rectangle(0, 0, 0, 0);
+				repaint();
+			}
+			
+		});
+		this.addMouseMotionListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				markedArea.setSize(e.getX() - (int)markedArea.getLocation().getX(),
+						e.getY() - (int)markedArea.getLocation().getY());
+				
+				repaint();
+			}
+			
+		});
+		
 	}
 
 /////////////////////////////////////////////Getter und Setter////////////////////////////////////////////////
@@ -148,7 +205,39 @@ public class DrawWavPanel extends JPanel {
 				g.fillRect((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
 			}
 		}
+		
+		// zeichne das Rechteck, welches die markierte Fläche verdeutlicht
+		g.setColor(Color.black);
+		g.drawRect(markedArea.x, markedArea.y, markedArea.width, markedArea.height);
 	}
+	
+	
+	// Mouse Listener
+	
+	 public void mouseClicked(MouseEvent event) {
+	    }
+	 
+	    public void mousePressed(MouseEvent event) {
+	    }
+	 
+	    public void mouseReleased(MouseEvent event) {
+	        repaint();
+	    }
+	 
+	    public void mouseEntered(MouseEvent event) {
+	    }
+	 
+	    public void mouseExited(MouseEvent event) {
+	    }
+	 
+	    public void mouseDragged(MouseEvent event) {
+	        repaint();
+	 
+	    }
+	 
+	    public void mouseMoved(MouseEvent event) {
+	        repaint();
+	    }
 	
 /////////////////////////////////////////////Methoden////////////////////////////////////////////////////////
 
