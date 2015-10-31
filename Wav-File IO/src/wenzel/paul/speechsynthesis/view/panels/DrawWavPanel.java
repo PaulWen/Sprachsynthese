@@ -70,7 +70,7 @@ public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionLi
 				while (pointsIterator.hasNext()) {
 					Point point = pointsIterator.next();
 					if (event.getPoint().distance(point.getX(), point.getY()) <= model.getPointDiameter()*2) {
-						listener.sampleClicked(indexOfSample);
+						listener.addMarkedSample(indexOfSample);
 						return;
 					}
 					indexOfSample++;
@@ -103,7 +103,7 @@ public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionLi
 					Point point = pointsIterator.next();
 					if (markedArea.contains(point)) {
 						indexOfSelectedSamples.add(indexOfSample);
-						listener.sampleClicked(indexOfSample);
+						listener.addMarkedSample(indexOfSample);
 					}
 					indexOfSample++;
 				}

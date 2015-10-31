@@ -59,6 +59,10 @@ public class WavFileDataObject {
 		return wavFileValues;
 	}
 	
+	public void setWavFileValues(double[][] wavFileValues) {
+		this.wavFileValues = wavFileValues;
+	}
+	
 	public int getValidBits() {
 		return validBits;
 	}

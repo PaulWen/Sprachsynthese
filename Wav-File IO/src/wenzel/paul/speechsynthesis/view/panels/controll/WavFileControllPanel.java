@@ -29,6 +29,7 @@ public class WavFileControllPanel extends JPanel {
 	
 	private JButton loadWavFileButton;
 	private JButton saveWavFileButton;
+	private JButton deleteSelectedSamplesButton;
 	
 	private JSpinner zoomSpinner;
 	
@@ -39,8 +40,6 @@ public class WavFileControllPanel extends JPanel {
 	 */
 	public WavFileControllPanel(final WavFileControllPanelListener listener) {
 		//Datenfelder initialisieren
-	
-		
 			//Buttons Konfigurieren
 		loadWavFileButton = new JButton("lade WAV-Datei");
 		loadWavFileButton.addActionListener(new ActionListener() {
@@ -55,6 +54,14 @@ public class WavFileControllPanel extends JPanel {
 			
 			public void actionPerformed(ActionEvent e) {
 				listener.saveWavFile();
+			}
+		});
+		
+		deleteSelectedSamplesButton = new JButton("lösche markierte Samples");
+		deleteSelectedSamplesButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				listener.deleteMarkedSamples();
 			}
 		});
 		
@@ -83,6 +90,7 @@ public class WavFileControllPanel extends JPanel {
 			//Komponenten Hinzufügen
 		add(loadWavFileButton);
 		add(saveWavFileButton);
+		add(deleteSelectedSamplesButton);
 		add(zoomSpinner);
 	}
 	

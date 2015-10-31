@@ -68,9 +68,32 @@ public class Main implements ViewListener {
 		WriteWavFile.writeWavFile(model.getWavFile(), startFileChooser(true));
 	}
 	
+	public void deleteMarkedSamples() {
+		double[][] oldWavFileValues = model.getWavFile().getWavFileValues();
+		double[][] newWavFileValues = new double[oldWavFileValues.length][oldWavFileValues[0].length - model.getIndexOfSamplesToHilight().size()];
+		
+		for (int channelNumber = 0; channelNumber < oldWavFileValues.length; channelNumber++) {
+			int newWavFileValuesIndex = 0;
+			for (int oldWavFileValuesIndex = 0; oldWavFileValuesIndex < oldWavFileValues[0].length; oldWavFileValuesIndex++) {
+				// wenn das Sample nicht markiert ist es in die neue Liste mit aufnehmen
+				if (!model.getIndexOfSamplesToHilight().contains(oldWavFileValuesIndex)) {
+					newWavFileValues[channelNumber][newWavFileValuesIndex++] = oldWavFileValues[channelNumber][oldWavFileValuesIndex];
+				}
+			}
+		}
+		
+		// die markierten Samples zurpcksetzen
+		model.setIndexOfSamplesToHilight(new HashSet<Integer>()); 
+		// die neuen Sample-Werte übergeben 
+		model.getWavFile().setWavFileValues(newWavFileValues);
+		
+		// die View neu zeichnen
+		hardRepaint();
+	}
+	
 	public void zoom(float zoomValue) {
 		model.setMinWidth((int)Math.ceil(model.getWavFile().getNumberOfFrames() * zoomValue));
-		view.repaint();
+		repaint();
 	}
 	
 	
@@ -86,18 +109,18 @@ public class Main implements ViewListener {
 		player.stop();
 	}
 	
-	public void sampleClicked(int indexOfClickedSample) {
+	public void addMarkedSample(int indexOfClickedSample) {
 		if (!model.getIndexOfSamplesToHilight().contains(indexOfClickedSample)) {
 			model.getIndexOfSamplesToHilight().add(indexOfClickedSample);
 		} else {
 			model.getIndexOfSamplesToHilight().remove(indexOfClickedSample);
 		}
-		view.repaint();
+		repaint();
 	}
 
 	public void resetSelectedSamples() {
 		model.setIndexOfSamplesToHilight(new HashSet<Integer>()); 
-		view.repaint();
+		repaint();
 	}
 	
 	public void loopPlayback(boolean loopPlayback) {
@@ -105,6 +128,24 @@ public class Main implements ViewListener {
 	}
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
+	
+	/**
+	 * Die Methode sorgt dafür, dass die Punkte der View nur neu gezeichnet (aber nicht berechnet) werden. 
+	 */
+	private void repaint() {
+		// View neu zeichnen
+		view.repaint();
+	}
+	
+	/**
+	 * Die Methode sorgt dafür, dass die Punkte der View komplett neu berechnet neu gezeichnet werden. 
+	 */
+	private void hardRepaint() {
+		// alle Punkte der View neu berechnen
+		
+		// View neu zeichnen
+		repaint();
+	}
 	
 	private void init() {
 		// ein bisheriges Fenster schließen
@@ -115,7 +156,7 @@ public class Main implements ViewListener {
 		//Datenfelder initialisieren
 		model = initNewModel();
 		view = new View(model, this);
-		view.repaint();
+		repaint();
 		
 		player = new WavFilePlayer(model);
 	}

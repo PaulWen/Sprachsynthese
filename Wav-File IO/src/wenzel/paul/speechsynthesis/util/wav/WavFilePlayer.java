@@ -162,7 +162,7 @@ public class WavFilePlayer {
 					e.printStackTrace();
 				}
 				
-				// die Methdoe returned erst, wenn alle im Buffer vorhandenen Daten komplett ausgegeben wurden
+				// die Methode returned erst, wenn alle im Buffer vorhandenen Daten komplett ausgegeben wurden
 				sourceLine.drain();
 
 				// die Pause ist nötig, da wenn mitten in der Wiedergabe pausiert wird zwei mal pausiert wird

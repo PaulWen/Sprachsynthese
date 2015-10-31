@@ -17,9 +17,9 @@ public interface DrawWavPanelListener {
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
 	/**
-	 * Wenn ein Punkt im Panel angeklickt wird, welcher ein Sample repräsentiert, so wird diese Methode aufgerufen.
+	 * Die Methode setzt ein bestimmtes Sample als markiert.
 	 * 
-	 * @param indexOfClickedSample der Index vom Sample, welches durch den angeklickten Punkt repräsentiert wird
+	 * @param indexOfClickedSample der Index vom Sample, welches markiert werden soll.
 	 */
-	public void sampleClicked(int indexOfClickedSample);
+	public void addMarkedSample(int indexOfClickedSample);
 }

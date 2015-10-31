@@ -28,6 +28,11 @@ public interface WavFileControllPanelListener {
 	
 	
 	/**
+	 * Die Methode löscht alle derzeit markierten Samples aus der Datei.
+	 */
+	public void deleteMarkedSamples();
+	
+	/**
 	 * Die Methode passt die Präsentation der WAV-Datei an das gewünschte Zoom-Level an.
 	 * 
 	 * Zoomlevel =  die Anzahl an Pixel pro Frame einer Datei, welche das Fenster breit sein soll
