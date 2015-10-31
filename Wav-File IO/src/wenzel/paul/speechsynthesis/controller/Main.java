@@ -68,6 +68,42 @@ public class Main implements ViewListener {
 		WriteWavFile.writeWavFile(model.getWavFile(), startFileChooser(true));
 	}
 	
+	public void attachWavFile() {
+		// FileChooser öffnen und eine WAV-Datei einlesen
+		WavFileDataObject newWavFile = null;
+		try {
+			newWavFile = ReadWavFile.openWavFile(startFileChooser(false));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (WavFileException e) {
+			e.printStackTrace();
+		}
+		
+		// neue Samples anhängen an die aktuelle Datei
+		double[][] oldWavFileFalues = model.getWavFile().getWavFileValues();
+		double[][] newWavFileFalues = new double[Math.max(oldWavFileFalues.length, newWavFile.getWavFileValues().length)][oldWavFileFalues[0].length + newWavFile.getWavFileValues()[0].length];
+		
+		// alte Werte in den neuen Array schreiben
+		for (int channelNumber = 0; channelNumber < oldWavFileFalues.length; channelNumber++) {
+			for (int sampleNumber = 0; sampleNumber < oldWavFileFalues[0].length; sampleNumber++) {
+				newWavFileFalues[channelNumber][sampleNumber] = oldWavFileFalues[channelNumber][sampleNumber];
+			}
+		}
+
+		// neue Werte in den neuen Array schreiben
+		int sampleNumberOffset = oldWavFileFalues[0].length;
+		for (int channelNumber = 0; channelNumber < newWavFile.getWavFileValues().length; channelNumber++) {
+			for (int sampleNumber = 0; sampleNumber < newWavFile.getWavFileValues()[0].length; sampleNumber++) {
+				newWavFileFalues[channelNumber][sampleNumberOffset + sampleNumber] = newWavFile.getWavFileValues()[channelNumber][sampleNumber];
+			}
+		}
+		
+		model.getWavFile().setWavFileValues(newWavFileFalues);
+		
+		// View neu zeichnen
+		view.repaint();
+	}
+	
 	public void deleteMarkedSamples() {
 		double[][] oldWavFileValues = model.getWavFile().getWavFileValues();
 		double[][] newWavFileValues = new double[oldWavFileValues.length][oldWavFileValues[0].length - model.getIndexOfSamplesToHilight().size()];
@@ -82,7 +118,7 @@ public class Main implements ViewListener {
 			}
 		}
 		
-		// die markierten Samples zurpcksetzen
+		// die markierten Samples zurücksetzen
 		model.setIndexOfSamplesToHilight(new HashSet<Integer>()); 
 		// die neuen Sample-Werte übergeben 
 		model.getWavFile().setWavFileValues(newWavFileValues);

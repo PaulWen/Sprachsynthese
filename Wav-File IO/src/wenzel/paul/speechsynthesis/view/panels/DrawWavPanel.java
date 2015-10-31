@@ -80,8 +80,6 @@ public class DrawWavPanel extends JPanel {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				markedArea.setLocation(e.getX(), e.getY());
-				
-				System.out.println(e.getPoint());
 			}
 			
 			@Override

@@ -26,6 +26,10 @@ public interface WavFileControllPanelListener {
 	 */
 	public void saveWavFile();
 	
+	/**
+	 * Die Metode dient dem anfügen einer WAV-Datei an die bereits geöffnete WAV-Datei. 
+	 */
+	public void attachWavFile();
 	
 	/**
 	 * Die Methode löscht alle derzeit markierten Samples aus der Datei.

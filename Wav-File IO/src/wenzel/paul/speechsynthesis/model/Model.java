@@ -117,7 +117,6 @@ public class Model implements ViewModel, WavFilePlayerModel {
 		
 		// das Array der Größe nach sortieren
 		Arrays.sort(indexOfStartAndEndSample);
-		System.out.println("Start und End Frame:" + indexOfStartAndEndSample[0] + "  " + indexOfStartAndEndSample[1]);
 		return indexOfStartAndEndSample;
 	}
 	
