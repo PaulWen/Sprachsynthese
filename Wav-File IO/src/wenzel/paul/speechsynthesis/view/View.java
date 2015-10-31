@@ -52,7 +52,7 @@ public class View extends JFrame {
 		//JFrame konfigurieren
 		setLayout(new BorderLayout());
 		setTitle("WAV-File Analyser");
-		setSize(500, 800);
+		setSize(1000, 800);
 		setResizable(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);

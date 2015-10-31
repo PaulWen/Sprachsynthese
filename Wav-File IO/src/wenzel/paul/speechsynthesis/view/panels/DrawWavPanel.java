@@ -1,14 +1,15 @@
 package wenzel.paul.speechsynthesis.view.panels;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -27,7 +28,7 @@ import wenzel.paul.speechsynthesis.model.DrawWavPanelModel;
  * @author Paul Wenzel (wenzel.pagb@googlemail.com)
  *
  */
-public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionListener {
+public class DrawWavPanel extends JPanel {
 	
 /////////////////////////////////////////////Datenfelder deklarieren////////////////////////////////////////////
 
@@ -35,12 +36,8 @@ public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionLi
 	private DrawWavPanelModel model;
 	
 	// WAV-Graph
-	/** das Array enthält alle Punkte, welche insgesamt eine Linie darstellen, die alle Punkte(Werte) verbindet */
-	private ArrayList<Point> line;
 	/** das Array enthält alle Punkte, welche sich aus den übergebenen Werten ergeben */
 	private ArrayList<Point> points;
-	
-	private Dimension currentSize;
 	
 	/** die durch die Maus markierte Fläche innerhalb vom Panel */
 	private Rectangle markedArea;
@@ -51,11 +48,9 @@ public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionLi
 		//Datenfelder initialisieren
 		this.model = model;
 		
-		line = new ArrayList<Point>();
 		points = new ArrayList<Point>();
 		
 		setPreferredSize(new Dimension(model.getMinWidth(), model.getMinHeight()));
-		currentSize = new Dimension(getWidth(), getHeight());
 		
 		markedArea = new Rectangle(0, 0, 0, 0);
 		
@@ -79,7 +74,7 @@ public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionLi
 			
 		});
 		
-		//MouseListener implementieren, welche mitbekommt, wenn eine Fläche markiert wird
+		// MouseListener implementieren, welche mitbekommen, wenn eine Fläche markiert wird
 		this.addMouseListener(new MouseAdapter() {
 			
 			@Override
@@ -127,7 +122,6 @@ public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionLi
 			}
 			
 		});
-		
 	}
 
 /////////////////////////////////////////////Getter und Setter////////////////////////////////////////////////
@@ -137,31 +131,26 @@ public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionLi
 
 	@Override
 	public void paint(Graphics g) {
-		// wenn sich die gewünschte Größe oder die Größe des Fensters verändert hat
-		if (getPreferredSize().getWidth() != model.getMinWidth() || getPreferredSize().getHeight() != model.getMinHeight() ||
-			currentSize.width != getWidth() || currentSize.height != getHeight())
-		{
-			setPreferredSize(new Dimension(model.getMinWidth(), model.getMinHeight()));
-			
+		Graphics2D g2 = (Graphics2D) g;
+		
+		// Größe vom Fenster setzen
+		setPreferredSize(new Dimension(model.getMinWidth(), model.getMinHeight()));
 			// die echte Größe anpassen, wenn das Fenster kleiner als gewünscht ist
-			int width = getWidth();
+		int width = getWidth();
 			// die Breite soll immer der gewünschten Breite entsprechen
-			if (width != model.getMinWidth()) {
-				width = model.getMinWidth();
-			}
-			
-			int height = getHeight();
-			// die Höhe soll immer maximal sein!
-			if (height < model.getMinHeight()) {
-				height = model.getMinHeight();
-			}
-			
-			setSize(width, height);
-			currentSize = new Dimension(getWidth(), getHeight());
-			
-			// Punkte neu berechnen
-			calculatePoints();
+		if (width != model.getMinWidth()) {
+			width = model.getMinWidth();
 		}
+		
+		int height = getHeight();
+			// die Höhe soll immer maximal sein!
+		if (height < model.getMinHeight()) {
+			height = model.getMinHeight();
+		}
+		setSize(width, height);
+		
+		// Punkte neu berechnen
+		calculatePoints();
 		
 		// Größe vom ViewPort angeben
 			// der ViePort ist maximal so groß, wie das Panel selber
@@ -183,9 +172,11 @@ public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionLi
 		
 		// zeichne die Linie
 		g.setColor(model.getLineColor());
-		for (Point point : line) {
-			if (viewPort.contains(point)) {
-				g.fillRect((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
+		for (int i = 0; i < points.size() - 1; i++) {
+			if (viewPort.contains(points.get(i))) {
+				g2.setStroke(new BasicStroke(model.getPointDiameter()));
+				int strokeThignessCorrection = model.getPointDiameter() / 2;
+                g2.draw(new Line2D.Float(points.get(i).x + strokeThignessCorrection, points.get(i).y + strokeThignessCorrection, points.get(i + 1).x + strokeThignessCorrection, points.get(i + 1).y + strokeThignessCorrection));
 			}
 		}
 		
@@ -211,98 +202,15 @@ public class DrawWavPanel extends JPanel implements MouseListener, MouseMotionLi
 		g.drawRect(markedArea.x, markedArea.y, markedArea.width, markedArea.height);
 	}
 	
-	
-	// Mouse Listener
-	
-	 public void mouseClicked(MouseEvent event) {
-	    }
-	 
-	    public void mousePressed(MouseEvent event) {
-	    }
-	 
-	    public void mouseReleased(MouseEvent event) {
-	        repaint();
-	    }
-	 
-	    public void mouseEntered(MouseEvent event) {
-	    }
-	 
-	    public void mouseExited(MouseEvent event) {
-	    }
-	 
-	    public void mouseDragged(MouseEvent event) {
-	        repaint();
-	 
-	    }
-	 
-	    public void mouseMoved(MouseEvent event) {
-	        repaint();
-	    }
-	
 /////////////////////////////////////////////Methoden////////////////////////////////////////////////////////
 
 	private void calculatePoints() {
-		// alle Punkte, welche es zu zeichnen gilt neu berechnen
-			// WAV-Graph Punkte neu berechnen
-		line = new ArrayList<Point>();
+		// WAV-Graph Punkte neu berechnen
 		points = new ArrayList<Point>();
 		
 		for (int i = 0; i < model.getWavFile().getNumberOfFrames(); i++) {
-			// Punkte der Linie berechnen
-			if (i != 0) {
-				//beim ersten Punkt noch keine Linie zeichen
-				line.addAll(line((int)(((double)getWidth() / (double)model.getWavFile().getNumberOfFrames()) * (i - 1) - (double)model.getPointDiameter() / 2),
-						         (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFile().getWavFileValues()[0][i - 1] - (double)model.getPointDiameter() / 2),
-						         (int)(((double)getWidth() / (double)model.getWavFile().getNumberOfFrames()) * i - (double)model.getPointDiameter() / 2),
-						         (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFile().getWavFileValues()[0][i] - (double)model.getPointDiameter() / 2)));
-			}
-			
 			// Punkt berechnen
 			points.add(new Point((int)(((double)getWidth() / (double)model.getWavFile().getNumberOfFrames()) * i - (double)model.getPointDiameter() / 2), (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFile().getWavFileValues()[0][i] - (double)model.getPointDiameter() / 2)));
 		}
 	}
-	
-	/**
-	 * Bresenham Algorithm
-	 * Quelle: http://tech-algorithm.com/articles/drawing-line-using-bresenham-algorithm/
-	 * 
-	 * @param x
-	 * @param y
-	 * @param x2
-	 * @param y2
-	 * @return
-	 */
-	private ArrayList<Point> line(int x,int y,int x2, int y2) {
-		ArrayList<Point> ergebnis = new ArrayList<Point>();
-	    
-	    int w = x2 - x ;
-	    int h = y2 - y ;
-	    int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
-	    if (w<0) dx1 = -1 ; else if (w>0) dx1 = 1 ;
-	    if (h<0) dy1 = -1 ; else if (h>0) dy1 = 1 ;
-	    if (w<0) dx2 = -1 ; else if (w>0) dx2 = 1 ;
-	    int longest = Math.abs(w) ;
-	    int shortest = Math.abs(h) ;
-	    if (!(longest>shortest)) {
-	        longest = Math.abs(h) ;
-	        shortest = Math.abs(w) ;
-	        if (h<0) dy2 = -1 ; else if (h>0) dy2 = 1 ;
-	        dx2 = 0 ;            
-	    }
-	    int numerator = longest >> 1 ;
-	    for (int i=0;i<=longest;i++) {
-	    	ergebnis.add(new Point(x, (int)Math.round(y)));
-	        numerator += shortest ;
-	        if (!(numerator<longest)) {
-	            numerator -= longest ;
-	            x += dx1 ;
-	            y += dy1 ;
-	        } else {
-	            x += dx2 ;
-	            y += dy2 ;
-	        }
-	    }
-	    
-	    return ergebnis;
-	}	
 }
