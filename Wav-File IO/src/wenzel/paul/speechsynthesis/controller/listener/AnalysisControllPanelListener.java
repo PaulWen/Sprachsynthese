@@ -1,14 +1,13 @@
 package wenzel.paul.speechsynthesis.controller.listener;
 
 /**
- * Das Interface {@link ViewListener} wird vom Controller implementiert.
- * Die View erwartet ein Objekt von diesem Interface. 
+ * Das Interface {@link AnalysisControllPanelListener} [...]
  * 
  * 
  * @author Paul Wenzel
  *
  */
-public interface ViewListener extends WavFileControllPanelListener, PlaybackControllPanelListener, DrawWavPanelListener, AnalysisControllPanelListener {
+public interface AnalysisControllPanelListener {
 	
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 	
@@ -17,7 +16,9 @@ public interface ViewListener extends WavFileControllPanelListener, PlaybackCont
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
-	
-	
+	/**
+	 * Die Methode analysiert die zeitlichen Abstände zwischen Peeks in Millisekunden.
+	 */
+	public void analyseDurationBetweenPeeks();
 	
 }

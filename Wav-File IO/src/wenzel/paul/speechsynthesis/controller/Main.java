@@ -163,6 +163,37 @@ public class Main implements ViewListener {
 		model.setLoopPlayback(loopPlayback);
 	}
 	
+	public void analyseDurationBetweenPeeks() {
+		// die Variable gibt an, ob die derzeit betrachteten Punkte eine steigende Linie bilden oder eine fallende
+		boolean rising = true;
+		// der Index vom letzten Sample, welcher eine Spitze darstellt
+		int sampleNumberOfLastPeek = 0;
+		
+		for (int sampleNumber = 1; sampleNumber < model.getWavFile().getWavFileValues()[0].length; sampleNumber++) {
+			if (rising) {
+				// gucken, ob mittlerweile ein fallender Punkt erreicht wurde
+				if (model.getWavFile().getWavFileValues()[0][sampleNumber] < model.getWavFile().getWavFileValues()[0][sampleNumber - 1]) {
+					// den zeitlichen Abstand zwischen dem und dem letzten Peek bestimmen
+					System.out.println("Rise: " + (double)((sampleNumber - 1) - sampleNumberOfLastPeek) / model.getWavFile().getSampleRate() * 1000);
+					
+					// Variablen updaten
+					rising = false;
+					sampleNumberOfLastPeek = sampleNumber - 1;
+				}
+			} else {
+				// gucken, ob mittlerweile ein steigender Punkt erreicht wurde
+				if (model.getWavFile().getWavFileValues()[0][sampleNumber] > model.getWavFile().getWavFileValues()[0][sampleNumber - 1]) {
+					// den zeitlichen Abstand zwischen dem und dem letzten Peek bestimmen
+					System.out.println("Fall: " + (double)((sampleNumber - 1) - sampleNumberOfLastPeek) / model.getWavFile().getSampleRate() * 1000);
+					
+					// Variablen updaten
+					rising = true;
+					sampleNumberOfLastPeek = sampleNumber - 1;
+				}
+			}
+		}
+	}
+	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
 	private void init() {

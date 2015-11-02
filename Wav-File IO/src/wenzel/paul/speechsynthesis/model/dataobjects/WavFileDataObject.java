@@ -12,7 +12,7 @@ public class WavFileDataObject {
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 
 	// Wav Header
-	/** die Sample Rate */
+	/** die Sample Rate --> Anzahl der zu spielenden Samples in der Sekunde */
 	private long sampleRate;				
 	
 	/** 
