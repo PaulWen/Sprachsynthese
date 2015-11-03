@@ -176,7 +176,7 @@ public class DrawWavPanel extends JPanel {
 			// zeichne die Linie
 			g.setColor(model.getLineColor());
 			for (int i = 0; i < points.size() - 1; i++) {
-				if (viewPort.contains(points.get(i))) {
+				if (viewPort.contains(points.get(i)) || viewPort.contains(points.get(i + 1))) {
 					g2.setStroke(new BasicStroke(model.getPointDiameter()));
 					int strokeThignessCorrection = model.getPointDiameter() / 2;
 					g2.draw(new Line2D.Float(points.get(i).x + strokeThignessCorrection, points.get(i).y + strokeThignessCorrection, points.get(i + 1).x + strokeThignessCorrection, points.get(i + 1).y + strokeThignessCorrection));
@@ -199,7 +199,6 @@ public class DrawWavPanel extends JPanel {
 					g.fillRect((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
 				}
 			}
-			
 			layerDrawn = true;
 		}
 		
@@ -217,7 +216,7 @@ public class DrawWavPanel extends JPanel {
 			for (int i = 0; i < model.getWavFile().getInicesOfPeeks().length - 1; i++) {
 				int indexOfPeek = model.getWavFile().getInicesOfPeeks()[i];
 				int indexOfNextPeek = model.getWavFile().getInicesOfPeeks()[i + 1];
-				if (viewPort.contains(points.get(indexOfPeek))) {
+				if (viewPort.contains(points.get(indexOfPeek)) || viewPort.contains(points.get(indexOfNextPeek))) {
 					g2.setStroke(new BasicStroke(model.getPointDiameter()));
 					int strokeThignessCorrection = model.getPointDiameter() / 2;
 					g2.draw(new Line2D.Float(points.get(indexOfPeek).x + strokeThignessCorrection, points.get(indexOfPeek).y + strokeThignessCorrection, points.get(indexOfNextPeek).x + strokeThignessCorrection, points.get(indexOfNextPeek).y + strokeThignessCorrection));
@@ -231,6 +230,7 @@ public class DrawWavPanel extends JPanel {
 					g.fillOval((int)(points.get(indexOfPoint).getX()), (int)(points.get(indexOfPoint).getY()), model.getPointDiameter(), model.getPointDiameter());
 				}
 			}
+			
 			
 			layerDrawn = true;
 		}
