@@ -30,7 +30,11 @@ public class Main implements ViewListener {
 /////////////////////////////////////////////////Konstanten/////////////////////////////////////////////////
 	
 	/** die Anzahl an Pixel pro Frame einer WAV-Datei, welche das Fenster zu beginn breit sein soll */
-	public static final float WINDOW_WIDTH_PER_FRAME = 1.0f;
+	public static final float START_WINDOW_WIDTH_PER_FRAME = 1.0f;
+	/** die minimale Anzahl an Pixel pro Frame einer WAV-Datei, welche das Fenster haben muss */
+	public static final float MIN_WINDOW_WIDTH_PER_FRAME = 0.1f;
+	/** die maximale Anzahl an Pixel pro Frame einer WAV-Datei, welche das Fenster haben darf */
+	public static final float MAX_WINDOW_WIDTH_PER_FRAME = 10.0f;
 
 	/** der Pfad, mit welchem der File-Chooser gestartet wird */
 	private String WAV_FILE_PATH = "C:/Users/Wenze/Desktop/Java Workspace/Sprachsynthese/Wav-File IO/res";
@@ -129,6 +133,7 @@ public class Main implements ViewListener {
 	
 	public void zoom(float zoomValue) {
 		model.setMinWidth((int)Math.ceil(model.getWavFile().getNumberOfFrames() * zoomValue));
+		model.setCurrentZoomLevel(zoomValue);
 		view.repaint();
 	}
 	
@@ -225,7 +230,7 @@ public class Main implements ViewListener {
 			WavFileDataObject wavFile = ReadWavFile.openWavFile(startFileChooser(false));
 			
 			// neues Model anlegen
-			model = new Model(wavFile, (int)Math.ceil(wavFile.getNumberOfFrames() * WINDOW_WIDTH_PER_FRAME), 500, 4, Color.white, Color.green, Color.black, Color.red);
+			model = new Model(wavFile, (int)Math.ceil(wavFile.getNumberOfFrames() * Main.START_WINDOW_WIDTH_PER_FRAME), 500, 4, Color.white, new Color(255, 255, 255, 128), Color.green, Color.black, Color.red, Main.START_WINDOW_WIDTH_PER_FRAME);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (WavFileException e) {
@@ -300,6 +305,16 @@ public class Main implements ViewListener {
 		} else {
 			return null;
 		}
+	}
+	
+	public void showWavFilePresentation(boolean show) {
+		model.setShowWavFilePresentation(show);
+		view.repaint();
+	}
+	
+	public void showPeeksPresentation(boolean show) {
+		model.setShowPeeksPresentation(show);
+		view.repaint();
 	}
 	
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	

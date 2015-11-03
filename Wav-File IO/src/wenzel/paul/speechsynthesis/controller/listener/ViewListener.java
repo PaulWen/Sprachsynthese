@@ -8,7 +8,7 @@ package wenzel.paul.speechsynthesis.controller.listener;
  * @author Paul Wenzel
  *
  */
-public interface ViewListener extends WavFileControllPanelListener, PlaybackControllPanelListener, DrawWavPanelListener, AnalysisControllPanelListener {
+public interface ViewListener extends WavFileControllPanelListener, PlaybackControllPanelListener, DrawWavPanelListener, AnalysisControllPanelListener, PresentationLayersControllPanelListener {
 	
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 	

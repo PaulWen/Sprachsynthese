@@ -7,7 +7,7 @@ package wenzel.paul.speechsynthesis.model;
  * @author Paul Wenzel
  *
  */
-public interface ViewModel extends DrawWavPanelModel {
+public interface ViewModel extends WavFileControllPanelModel, DrawWavPanelModel, PresentationLayersControllPanelModel {
 	
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 	

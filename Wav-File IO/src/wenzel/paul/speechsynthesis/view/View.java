@@ -12,6 +12,7 @@ import wenzel.paul.speechsynthesis.model.ViewModel;
 import wenzel.paul.speechsynthesis.view.panels.DrawWavPanel;
 import wenzel.paul.speechsynthesis.view.panels.controll.AnalysisControllPanel;
 import wenzel.paul.speechsynthesis.view.panels.controll.PlaybackControllPanel;
+import wenzel.paul.speechsynthesis.view.panels.controll.PresentationLayersControllPanel;
 import wenzel.paul.speechsynthesis.view.panels.controll.WavFileControllPanel;
 
 public class View extends JFrame {
@@ -28,6 +29,7 @@ public class View extends JFrame {
 	
 	private WavFileControllPanel wavFileControllPanel;
 	private PlaybackControllPanel playbackControllPanel;
+	private PresentationLayersControllPanel presentationLayersControllPanel;
 	private AnalysisControllPanel analysisControllPanel;
 
 /////////////////////////////////////////////Konstruktor///////////////////////////////////////////////////////
@@ -43,14 +45,16 @@ public class View extends JFrame {
 		drawPanel = new DrawWavPanel(model, listener);
 		scrollPane = new JScrollPane(drawPanel);
 		
-		wavFileControllPanel = new WavFileControllPanel(listener);
+		wavFileControllPanel = new WavFileControllPanel(model, listener);
 		playbackControllPanel = new PlaybackControllPanel(listener);
+		presentationLayersControllPanel = new PresentationLayersControllPanel(model, listener);
 		analysisControllPanel = new AnalysisControllPanel(listener);
 		
 		//JTappedPane erstellen
 		tabbedPane = new JTabbedPane();
 		tabbedPane.addTab("Datei", null, wavFileControllPanel, "Laden einer WAV-Datei");
 		tabbedPane.addTab("Wiedergabe", null, playbackControllPanel, "WAV-Datei wiedergeben");
+		tabbedPane.addTab("Ansicht", null, presentationLayersControllPanel, "verschiedene Ansichten einblenden");
 		tabbedPane.addTab("Analysieren", null, analysisControllPanel, "die WAV-Datei analysieren");
 
 		//JFrame konfigurieren

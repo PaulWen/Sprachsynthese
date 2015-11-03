@@ -16,6 +16,8 @@ public interface DrawWavPanelModel {
 	
 	/** Farbe vom Hintergrund */
 	public Color getBackgroundColor(); 
+	/** ein transparenter Hintergrund, welche mehrere gemalte Schichten trennen soll */
+	public Color getTransparentBackgroundColor();
 	/** Farbe in welcher die Linie gemalt wird */
 	public Color getLineColor(); 
 	/** Farbe in welcher die Punkte gemalt werden sollen */
@@ -29,4 +31,10 @@ public interface DrawWavPanelModel {
 	 * @return ArrayList mit den Indizes der Samples, welche grafisch hervorgehoben werden sollen.
 	 */
 	public HashSet<Integer> getIndexOfSamplesToHilight();
+	
+	/** Die Methode gibt aus, ob die komplette WAV-Datei in die View eingezeichnet bzw. ausgeblendet werden soll. */
+	public boolean isShowWavFilePresentation();
+
+	/** Die Methode gibt aus, ob die Peeks in die View eingezeichnet bzw. ausgeblendet werden soll. */
+	public boolean isShowPeeksPresentation();
 }

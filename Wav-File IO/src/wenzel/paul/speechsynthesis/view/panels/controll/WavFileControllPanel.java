@@ -15,6 +15,7 @@ import javax.swing.event.ChangeListener;
 
 import wenzel.paul.speechsynthesis.controller.Main;
 import wenzel.paul.speechsynthesis.controller.listener.WavFileControllPanelListener;
+import wenzel.paul.speechsynthesis.model.WavFileControllPanelModel;
 
 /**
  * Die Klasse {@link WavFileControllPanel} [...]
@@ -26,6 +27,8 @@ import wenzel.paul.speechsynthesis.controller.listener.WavFileControllPanelListe
 public class WavFileControllPanel extends JPanel {
 	
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
+	
+	private WavFileControllPanelModel model;
 	
 	private JButton loadWavFileButton;
 	private JButton saveWavFileButton;
@@ -39,8 +42,10 @@ public class WavFileControllPanel extends JPanel {
 	/**
 	 * Der Konstruktor der Klasse {@link WavFileControllPanel}. 
 	 */
-	public WavFileControllPanel(final WavFileControllPanelListener listener) {
+	public WavFileControllPanel(final WavFileControllPanelModel model, final WavFileControllPanelListener listener) {
 		//Datenfelder initialisieren
+		this.model = model;
+		
 			//Buttons Konfigurieren
 		loadWavFileButton = new JButton("lade WAV-Datei");
 		loadWavFileButton.addActionListener(new ActionListener() {
@@ -75,7 +80,7 @@ public class WavFileControllPanel extends JPanel {
 		});
 		
 			//Zoom Konfigurieren
-		zoomSpinner = new JSpinner(new SpinnerNumberModel(Main.WINDOW_WIDTH_PER_FRAME, 0, 10.0f, 0.1f));
+		zoomSpinner = new JSpinner(new SpinnerNumberModel(model.getCurrentZoomLevel(), 0, Main.MAX_WINDOW_WIDTH_PER_FRAME, Main.MIN_WINDOW_WIDTH_PER_FRAME));
 		zoomSpinner.setToolTipText("Zoom-Level");
 		JSpinner.NumberEditor editor = (JSpinner.NumberEditor)zoomSpinner.getEditor();
         DecimalFormat format = editor.getFormat();
@@ -83,13 +88,10 @@ public class WavFileControllPanel extends JPanel {
         format.setMaximumFractionDigits(1);
         editor.getTextField().setHorizontalAlignment(SwingConstants.CENTER);
 		zoomSpinner.addChangeListener( new ChangeListener() {
-			private float zoomValue = 1.0f;
-			
 			public void stateChanged(ChangeEvent e) {
 				// nur wenn sich der Wert wirklich geändert hat eine Action melden
-				if (((Double)((JSpinner)e.getSource()).getValue()).floatValue() != zoomValue) {
+				if (((Double)((JSpinner)e.getSource()).getValue()).floatValue() != model.getCurrentZoomLevel()) {
 					listener.zoom(((Double)((JSpinner)e.getSource()).getValue()).floatValue());
-					zoomValue = ((Double)((JSpinner)e.getSource()).getValue()).floatValue();
 				}
 			}
 		});

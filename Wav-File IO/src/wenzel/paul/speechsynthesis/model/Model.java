@@ -13,7 +13,7 @@ import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
  * @author Paul Wenzel
  *
  */
-public class Model implements ViewModel, WavFilePlayerModel {
+public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlayerModel, PresentationLayersControllPanelModel {
 	
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 	
@@ -24,31 +24,41 @@ public class Model implements ViewModel, WavFilePlayerModel {
 	private WavFileDataObject wavFile;
 	
 	private Color backgroundColor;
+	private Color transparentBackgroundColor;
 	private Color lineColor;
 	private Color pointColor;
 	private Color hilightColor;
 	private	HashSet<Integer> indexOfSamplesToHilight;
 	
+	private boolean showWavFilePresentation;
+	private boolean showPeeksPresentation;
+	
 	private boolean loopPlayback;
+	
+	private float currentZoomLevel;
 
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
 	/**
 	 * Der Konstruktor der Klasse {@link Model}. 
 	 */
-	public  Model(WavFileDataObject wavFile, int width, int height, int pointDiameter, Color backgroundColor, Color lineColor, Color pointColor, Color hilightColor) {
+	public  Model(WavFileDataObject wavFile, int width, int height, int pointDiameter, Color backgroundColor, Color transparentBackgroundColor, Color lineColor, Color pointColor, Color hilightColor, float currentZoomLevel) {
 		//Datenfelder initialisieren
 		this.minWidth = width;
 		this.minHeight = height;
 		this.pointDiameter = pointDiameter;
 		this.backgroundColor = backgroundColor;
+		this.transparentBackgroundColor = transparentBackgroundColor;
 		this.lineColor = lineColor;
 		this.pointColor = pointColor;
 		this.hilightColor = hilightColor;
 		this.wavFile = wavFile;
+		this.currentZoomLevel = currentZoomLevel;
 		
 		indexOfSamplesToHilight = new HashSet<Integer>();
 		loopPlayback = false;
+		showWavFilePresentation = true;
+		showPeeksPresentation = false;
 	}
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
@@ -63,6 +73,18 @@ public class Model implements ViewModel, WavFilePlayerModel {
 	
 	public void setIndexOfSamplesToHilight(HashSet<Integer> indexOfSamplesToHilight) {
 		this.indexOfSamplesToHilight = indexOfSamplesToHilight;
+	}
+	
+	public void setShowWavFilePresentation(boolean showWavFilePresentation) {
+		this.showWavFilePresentation = showWavFilePresentation;
+	}
+	
+	public void setShowPeeksPresentation(boolean showPeeksPresentation) {
+		this.showPeeksPresentation = showPeeksPresentation;
+	}
+	
+	public void setCurrentZoomLevel(float currentZoomLevel) {
+		this.currentZoomLevel = currentZoomLevel;
 	}
 	
 ///////////////////////////////////////////////geerbte Methoden//////////////////////////////////////////////
@@ -85,6 +107,10 @@ public class Model implements ViewModel, WavFilePlayerModel {
 	
 	public Color getBackgroundColor() {
 		return backgroundColor;
+	}
+	
+	public Color getTransparentBackgroundColor() {
+		return transparentBackgroundColor;
 	}
 
 	public Color getLineColor() {
@@ -122,6 +148,18 @@ public class Model implements ViewModel, WavFilePlayerModel {
 	
 	public boolean loopPlayBack() {
 			return loopPlayback;
+	}
+	
+	public boolean isShowPeeksPresentation() {
+		return showPeeksPresentation;
+	}
+
+	public boolean isShowWavFilePresentation() {
+		return showWavFilePresentation;
+	}
+	
+	public float getCurrentZoomLevel() {
+		return currentZoomLevel;
 	}
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////

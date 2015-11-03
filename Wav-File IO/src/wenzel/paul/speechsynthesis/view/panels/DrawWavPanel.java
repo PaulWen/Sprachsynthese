@@ -129,6 +129,9 @@ public class DrawWavPanel extends JPanel {
 
 	@Override
 	public void paint(Graphics g) {
+		// die Variable gibt Auskunft darüber ob bereits eine Schicht gezeichnet wurde auf die Zeichenfläche
+		boolean layerDrawn = false;
+		
 		Graphics2D g2 = (Graphics2D) g;
 		
 		// Größe vom Fenster setzen
@@ -147,52 +150,89 @@ public class DrawWavPanel extends JPanel {
 		}
 		setSize(width, height);
 		
-		// Punkte neu berechnen
-		calculatePoints();
-		
 		// Größe vom ViewPort angeben
-			// der ViePort ist maximal so groß, wie das Panel selber
+		// der ViePort ist maximal so groß, wie das Panel selber
 		Rectangle viewPort = new Rectangle(0, 0, getWidth(), getHeight());
-			// wenn sich das Panel in einem ScrollPane befindet, dann soll nur der sichtbare Bereich gezeichnet werden, um performanter zu sein
+		// wenn sich das Panel in einem ScrollPane befindet, dann soll nur der sichtbare Bereich gezeichnet werden, um performanter zu sein
 		if (getParent() instanceof JViewport) {
 			viewPort = new Rectangle((int)((JViewport)getParent()).getViewPosition().getX(),
-							   		 (int)((JViewport)getParent()).getViewPosition().getY(),
-							   	   	 ((JScrollPane)((JViewport)getParent()).getParent()).getWidth(),
-							   	     ((JScrollPane)((JViewport)getParent()).getParent()).getHeight());
+					(int)((JViewport)getParent()).getViewPosition().getY(),
+					((JScrollPane)((JViewport)getParent()).getParent()).getWidth(),
+					((JScrollPane)((JViewport)getParent()).getParent()).getHeight());
 		}
 		
 		// zeichnen
 		super.paint(g);
-			
+		
 		// zeichne den Hintergrund
 		g.setColor(model.getBackgroundColor());
 		g.fillRect(0, 0, getWidth(), getHeight());
 		
-		// zeichne die Linie
-		g.setColor(model.getLineColor());
-		for (int i = 0; i < points.size() - 1; i++) {
-			if (viewPort.contains(points.get(i))) {
-				g2.setStroke(new BasicStroke(model.getPointDiameter()));
-				int strokeThignessCorrection = model.getPointDiameter() / 2;
-                g2.draw(new Line2D.Float(points.get(i).x + strokeThignessCorrection, points.get(i).y + strokeThignessCorrection, points.get(i + 1).x + strokeThignessCorrection, points.get(i + 1).y + strokeThignessCorrection));
+		//falls die komplette WAV-Datei gezeichnet werden soll diese Zeichnen
+		if (model.isShowWavFilePresentation()) {
+			// Punkte neu berechnen
+			calculatePoints();
+			
+			// zeichne die Linie
+			g.setColor(model.getLineColor());
+			for (int i = 0; i < points.size() - 1; i++) {
+				if (viewPort.contains(points.get(i))) {
+					g2.setStroke(new BasicStroke(model.getPointDiameter()));
+					int strokeThignessCorrection = model.getPointDiameter() / 2;
+					g2.draw(new Line2D.Float(points.get(i).x + strokeThignessCorrection, points.get(i).y + strokeThignessCorrection, points.get(i + 1).x + strokeThignessCorrection, points.get(i + 1).y + strokeThignessCorrection));
+				}
 			}
+			
+			// zeichne die einzelnen Punkte
+			g.setColor(model.getPointColor());
+			for (Point point : points) {
+				if (viewPort.contains(point)) {
+					g.fillOval((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
+				}
+			}
+			
+			// zeichne die Punkte, welche hervorgehoben werden sollen
+			g.setColor(model.getHilightColor());
+			for (int index : model.getIndexOfSamplesToHilight()) {
+				Point point = points.get(index);
+				if (viewPort.contains(point)) {
+					g.fillRect((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
+				}
+			}
+			
+			layerDrawn = true;
 		}
 		
-		// zeichne die einzelnen Punkte
-		g.setColor(model.getPointColor());
-		for (Point point : points) {
-			if (viewPort.contains(point)) {
-				g.fillOval((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
+		//falls die Peeks besonders hervorgehoben werden diese hervorheben
+		if (model.isShowPeeksPresentation()) {
+			// wenn davor bereits eine Schicht gezeichnet wurde, dann zuvor eine transparente Schicht einfügen, welche die Schichten etwas trennt voneinander
+			if (layerDrawn) {
+				// zeichne eine transparente Zwischenschicht
+				g.setColor(model.getTransparentBackgroundColor());
+				g.fillRect(0, 0, getWidth(), getHeight());
 			}
-		}
-		
-		// zeichne die Punkte, welche hervorgehoben werden sollen
-		g.setColor(model.getHilightColor());
-		for (int index : model.getIndexOfSamplesToHilight()) {
-			Point point = points.get(index);
-			if (viewPort.contains(point)) {
-				g.fillRect((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
+			
+			// zeichne die Linie
+			g.setColor(Color.RED);
+			for (int i = 0; i < model.getWavFile().getInicesOfPeeks().length - 1; i++) {
+				int indexOfPeek = model.getWavFile().getInicesOfPeeks()[i];
+				int indexOfNextPeek = model.getWavFile().getInicesOfPeeks()[i + 1];
+				if (viewPort.contains(points.get(indexOfPeek))) {
+					g2.setStroke(new BasicStroke(model.getPointDiameter()));
+					int strokeThignessCorrection = model.getPointDiameter() / 2;
+					g2.draw(new Line2D.Float(points.get(indexOfPeek).x + strokeThignessCorrection, points.get(indexOfPeek).y + strokeThignessCorrection, points.get(indexOfNextPeek).x + strokeThignessCorrection, points.get(indexOfNextPeek).y + strokeThignessCorrection));
+				}
 			}
+			
+			// zeichne die einzelnen Punkte
+			g.setColor(model.getPointColor());
+			for (int indexOfPoint : model.getWavFile().getInicesOfPeeks()) {
+				if (viewPort.contains(points.get(indexOfPoint))) {
+					g.fillOval((int)(points.get(indexOfPoint).getX()), (int)(points.get(indexOfPoint).getY()), model.getPointDiameter(), model.getPointDiameter());
+				}
+			}
+			
+			layerDrawn = true;
 		}
 		
 		// zeichne das Rechteck, welches die markierte Fläche verdeutlicht
