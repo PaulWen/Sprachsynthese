@@ -26,6 +26,7 @@ public class PresentationLayersControllPanel extends JPanel {
 	
 	private JCheckBox wavFilePresentationCheckBox;
 	private JCheckBox peeksPresentationCheckBox;
+	private JCheckBox polygonsOfPeeksPresentationCheckBox;
 	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
@@ -54,12 +55,22 @@ public class PresentationLayersControllPanel extends JPanel {
 				listener.showPeeksPresentation(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
+
+		polygonsOfPeeksPresentationCheckBox = new JCheckBox("Polygone der Peeks");
+		polygonsOfPeeksPresentationCheckBox.setSelected(model.isShowPolygonsOfPeeksPresentation());
+		polygonsOfPeeksPresentationCheckBox.addItemListener(new ItemListener() {
+			
+			public void itemStateChanged(ItemEvent e) {
+				listener.showPolygonsOfPeeksPresentation(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
 		
 			//JPanel Konfigurieren
 		setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 			//Komponenten Hinzufügen
 		add(wavFilePresentationCheckBox);
 		add(peeksPresentationCheckBox);
+		add(polygonsOfPeeksPresentationCheckBox);
 	}
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////

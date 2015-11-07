@@ -171,7 +171,7 @@ public class WavFileDataObject {
 	}
 	
 	/**
-	 * Die Methode berechnet einen Array von Samples, welche genau auf den Verbindungslinien der Peeks liegen.
+	 * Die Methode berechnet ein Array von Samples, welche genau auf den Verbindungslinien der Peeks liegen.
 	 * 
 	 * @return ein Array mit Samples, welche genau auf den Verbindungslinien der Peeks liegen
 	 */

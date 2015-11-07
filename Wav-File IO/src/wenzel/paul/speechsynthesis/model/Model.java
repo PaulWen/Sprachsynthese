@@ -32,6 +32,7 @@ public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlaye
 	
 	private boolean showWavFilePresentation;
 	private boolean showPeeksPresentation;
+	private boolean showPolygonsOfPeeksPresentation;
 	
 	private boolean loopPlayback;
 	
@@ -59,6 +60,7 @@ public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlaye
 		loopPlayback = false;
 		showWavFilePresentation = true;
 		showPeeksPresentation = false;
+		showPolygonsOfPeeksPresentation = false;
 	}
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
@@ -81,6 +83,10 @@ public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlaye
 	
 	public void setShowPeeksPresentation(boolean showPeeksPresentation) {
 		this.showPeeksPresentation = showPeeksPresentation;
+	}
+	
+	public void setShowPolygonsOfPeeksPresentation(boolean showPolygonsOfPeeksPresentation) {
+		this.showPolygonsOfPeeksPresentation = showPolygonsOfPeeksPresentation;
 	}
 	
 	public void setCurrentZoomLevel(float currentZoomLevel) {
@@ -156,6 +162,10 @@ public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlaye
 
 	public boolean isShowWavFilePresentation() {
 		return showWavFilePresentation;
+	}
+	
+	public boolean isShowPolygonsOfPeeksPresentation() {
+		return showPolygonsOfPeeksPresentation;
 	}
 	
 	public float getCurrentZoomLevel() {

@@ -199,6 +199,21 @@ public class Main implements ViewListener {
 		}
 	}
 	
+	public void showWavFilePresentation(boolean show) {
+		model.setShowWavFilePresentation(show);
+		view.repaint();
+	}
+	
+	public void showPeeksPresentation(boolean show) {
+		model.setShowPeeksPresentation(show);
+		view.repaint();
+	}
+	
+	public void showPolygonsOfPeeksPresentation(boolean show) {
+		model.setShowPolygonsOfPeeksPresentation(show);
+		view.repaint();
+	}
+	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
 	private void init() {
@@ -305,16 +320,6 @@ public class Main implements ViewListener {
 		} else {
 			return null;
 		}
-	}
-	
-	public void showWavFilePresentation(boolean show) {
-		model.setShowWavFilePresentation(show);
-		view.repaint();
-	}
-	
-	public void showPeeksPresentation(boolean show) {
-		model.setShowPeeksPresentation(show);
-		view.repaint();
 	}
 	
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	

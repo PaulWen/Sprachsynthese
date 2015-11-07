@@ -37,4 +37,10 @@ public interface DrawWavPanelModel {
 
 	/** Die Methode gibt aus, ob die Peeks in die View eingezeichnet bzw. ausgeblendet werden soll. */
 	public boolean isShowPeeksPresentation();
+
+	/** Die Methode gibt aus, ob die Polygone von den Peeks in die View eingezeichnet bzw. ausgeblendet werden sollen. */
+	public boolean isShowPolygonsOfPeeksPresentation();
+	
+//	/** Die Methode gibt aus, ob die Polygone von allen Samples in die View eingezeichnet bzw. ausgeblendet werden sollen. */
+//	public boolean isShowPolygonsOfSamplesPresentation();
 }

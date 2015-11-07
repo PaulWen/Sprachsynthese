@@ -31,5 +31,13 @@ public interface PresentationLayersControllPanelListener {
 	 * 				false = die Peeks sollen nicht hervorgehoben/eingezeichnet werden
 	 */
 	public void showPeeksPresentation(boolean show);
+
+	/**
+	 * Die Methode ermöglicht es die Polygone der Peeks in die View einzuzeichnen bzw. auszublenden.
+	 * 
+	 * @param show true = die Polygone der Peeks sollen hervorgehoben/eingezeichnet werden
+	 * 				false = die Polygone der Peeks sollen nicht hervorgehoben/eingezeichnet werden
+	 */
+	public void showPolygonsOfPeeksPresentation(boolean show);
 	
 }
