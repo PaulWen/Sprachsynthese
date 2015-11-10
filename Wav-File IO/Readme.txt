@@ -1,11 +1,9 @@
 TODOs:
 
-BUGS: wenn ich ganz oft das gleiche Muster hintereinander packe und dann nach dem Muster suche, dann findet er es nicht mehr
-
-
 Mustererkennung: 
 	1. die Berechnung der Linien-Polygone kommentieren und dokumentieren!
 	2. Muster erkennen und wiederfinden (mittels einem Bewertungsverfahren) 
+	3. die gefundenen Muster anzeigen können
 	
 	
 Verbesserungsvorschläge:

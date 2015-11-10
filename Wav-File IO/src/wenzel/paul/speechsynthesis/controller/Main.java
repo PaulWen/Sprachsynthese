@@ -231,9 +231,9 @@ public class Main implements ViewListener {
 		
 		// das Muster in der aktuellen WAV-Datei suchen
 			// Bedingungen: die Punkte werden normiert --> x * 100; y * 100 
-		int normX = 5;
+		int normX = 100;
 		int normY = 100;
-		int tolerance = normX * 2;
+		int tolerance = 10;
 		
 			// 1. Polygone vom Muster erstellen
 		ArrayList<Polygon>	polygonsOfSoundPattern = new ArrayList<Polygon>();
@@ -295,6 +295,8 @@ public class Main implements ViewListener {
 				for (int j = 0; j < polygon.xpoints.length; j++) {
 					polygon.xpoints[j] += normX;
 				}
+				// dem Polygon sagen, dass sich seine Punkte verändert haben
+				polygon.invalidate();
 			}
 			System.out.println(i + "/" + model.getWavFile().getNumberOfFrames());
 		}

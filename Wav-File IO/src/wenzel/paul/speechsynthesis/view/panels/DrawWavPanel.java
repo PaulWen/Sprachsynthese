@@ -262,6 +262,10 @@ public class DrawWavPanel extends JPanel {
 					for (int j = 0; j < polygon.ypoints.length; j++) {
 						polygon.ypoints[j] += strokeThignessCorrection;
 					}
+					// dem Polygon sagen, dass sich seine Punkte verändert haben
+					polygon.invalidate();
+					
+					// das Polygon zeichnen
 					g.drawPolyline(polygon.xpoints, polygon.ypoints, polygon.npoints);
 				}
 			}
