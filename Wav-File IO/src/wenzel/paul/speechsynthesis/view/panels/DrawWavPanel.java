@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
+import wenzel.paul.speechsynthesis.controller.Main;
 import wenzel.paul.speechsynthesis.controller.listener.DrawWavPanelListener;
 import wenzel.paul.speechsynthesis.model.DrawWavPanelModel;
 
@@ -253,7 +254,7 @@ public class DrawWavPanel extends JPanel {
 				int indexOfNextPeek = model.getWavFile().getInicesOfPeeks()[i + 1];
 				if (viewPort.contains(points.get(indexOfPeek)) || viewPort.contains(points.get(indexOfNextPeek))) {
 					// Polygone um die Punkte zeichnen
-					Polygon polygon = calculatePolygonOfTwoPoints(points.get(indexOfPeek).x, points.get(indexOfPeek).y, points.get(indexOfNextPeek).x, points.get(indexOfNextPeek).y, 20);
+					Polygon polygon = Main.calculatePolygonOfTwoPoints(points.get(indexOfPeek).x, points.get(indexOfPeek).y, points.get(indexOfNextPeek).x, points.get(indexOfNextPeek).y, 20);
 					// Polygon aufgrund der dicke der Linie ungefähr korrigieren für das Zeichnen
 					for (int j = 0; j < polygon.xpoints.length; j++) {
 						polygon.xpoints[j] += strokeThignessCorrection;
@@ -277,9 +278,12 @@ public class DrawWavPanel extends JPanel {
 			
 		}
 		
-		// zeichne das Rechteck, welches die markierte Fläche verdeutlicht
-		g.setColor(Color.black);
-		g.drawRect(markedArea.x, markedArea.y, markedArea.width, markedArea.height);
+		// zeichne das Rechteck, welches die markierte Fläche verdeutlicht, wenn es eine width oder hight > 0 hat
+		if (markedArea.width > 0 || markedArea.height > 0) {
+			g.setColor(Color.black);
+			g.drawRect(markedArea.x, markedArea.y, markedArea.width, markedArea.height);
+		}
+		
 	}
 	
 /////////////////////////////////////////////Methoden////////////////////////////////////////////////////////
@@ -294,122 +298,4 @@ public class DrawWavPanel extends JPanel {
 		}
 	}
 	
-	/**
-	 * Die Methode zeichnet ein Polygon um zwei beliebige Punkte.
-	 * Dieses Polygon hat einen gewünschten Abstand von den beiden Punkten.
-	 * Die Methode ist somit in der Lage ein Polygon um eine beliebige Linie zu zeichnen.
-	 * 
-	 * @param x1 x-Wert von Punkt 1
-	 * @param y1 y-Wert von Punkt 1
-	 * @param x2 x-Wert von Punkt 2
-	 * @param y2 y-Wert von Punkt 2
-	 * @param distance der Abstand vom Polygon zu den Punkten
-	 * @return das Polygon, welches die beiden Punkte mit dem gewünschten Abstand umschließt
-	 */
-	private Polygon calculatePolygonOfTwoPoints(double x1, double y1, double x2, double y2, double distance) {
-		// sicherstellen, dass x1 < x2
-		if (x1 > x2) {
-			// x-Werte Tauschen
-			double tempX = x1;
-			x1 = x2;
-			x2 = tempX;
-			
-			// y-Werte Tauschen
-			double tempY = y1;
-			y1 = y2;
-			y2 = tempY;
-		}
-		
-		
-		int[] xpoints = new int[5];
-		int[] ypoints = new int[5];
-		
-		double m;
-		double m2;
-		// wenn die Steigung nicht 0 ist und es somit die beiden Punkte nicht den gleichen x-Wert haben  
-		if (x2 - x1 != 0) {
-			m = (y2 - y1) / (x2 - x1); // Steigung der Linie 
-			m2 = -1 / m; // orthogonale Steigung zur Linie
-		// wenn die beiden Punkte den gleichen x-Wert haben und daher der Nenner 0 ergeben würde, dann ist die Steigung=unendlich
-		} else {
-			m = Double.POSITIVE_INFINITY; // Steigung der Linie
-			m2 = 0; // orthogonale Steigung zur Linie
-		}
-		System.out.println("Steigung:" + m);
-		System.out.println("Steigung 2:" + m2);
-		
-		Point pOne = calculatePointOnLineWithSpecificDistanceToAnotherPoint(x1, y1, m, distance, false);
-		Point pTwo = calculatePointOnLineWithSpecificDistanceToAnotherPoint(x2, y2, m, distance, true);
-		// 1. Punkt
-		Point p1 = calculatePointOnLineWithSpecificDistanceToAnotherPoint(pOne.getX(), pOne.getY(), m2, distance, true);
-		xpoints[0] = p1.x;
-		ypoints[0] = p1.y;
-		xpoints[4] = p1.x;
-		ypoints[4] = p1.y;
-		System.out.println("Point 1: " + p1.x + ", " + p1.y);
-		
-		// 2. Punkt
-		Point p2 = calculatePointOnLineWithSpecificDistanceToAnotherPoint(pOne.getX(), pOne.getY(), m2, distance, false);
-		xpoints[1] = p2.x;
-		ypoints[1] = p2.y;
-		System.out.println("Point 2: " + p2.x + ", " + p2.y);
-
-		// 3. Punkt
-		Point p3 = calculatePointOnLineWithSpecificDistanceToAnotherPoint(pTwo.getX(), pTwo.getY(), m2, distance, false);
-		xpoints[2] = p3.x;
-		ypoints[2] = p3.y;
-		System.out.println("Point 3: " + p3.x + ", " + p3.y);
-
-		// 4. Punkt
-		Point p4 = calculatePointOnLineWithSpecificDistanceToAnotherPoint(pTwo.getX(), pTwo.getY(), m2, distance, true);
-		xpoints[3] = p4.x;
-		ypoints[3] = p4.y;
-		System.out.println("Point 4: " + p4.x + ", " + p4.y);
-		
-		return new Polygon(xpoints, ypoints, 5);
-	}
-	
-	/**
-	 * Die Methode bestimmt einen Punkt, welcher auf einer Gerade (mit der Steigung m und dem Punkt x, y) liegt und von dem Punkt x, y eine gewünschte Entfernung hat. 
-	 * Außerdem kann bestimmt werden, ob der zu bestimmende Punkt auf der x-Achse links (followM = false) oder auf der x-Achse rechts (upwards = true) neben dem Punkt x, y liegen soll.
-	 * Falls die Steigung m = unendlich, da die Gerade senkrecht verläuft, dann ist der zu bestimmende Punkt auf der y-Achse unter (followM = false) oder auf der y-Achse über (followM = true) dem Punkt x, y. 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param m
-	 * @param distance
-	 * @param followM
-	 * @return
-	 */
-	private Point calculatePointOnLineWithSpecificDistanceToAnotherPoint(double x, double y, double m, double distance, boolean followM) {
-		double n = y - m * x;
-		
-		double pointX;
-		double pointY;
-		
-		// prüfen, ob die Steigung != unendlich ist
-		if (m != Double.POSITIVE_INFINITY && m != Double.NEGATIVE_INFINITY) {
-			System.out.println("1. X-Wert" + (-(m*n)+x+m*y+(Math.sqrt(Math.pow(distance, 2)+Math.pow(distance, 2)*Math.pow(m, 2)-(Math.pow(n, 2))-(2*m*n*x)-(Math.pow(m, 2)*Math.pow(x, 2))+2*n*y+2*m*x*y-(Math.pow(y, 2)))))/(1+Math.pow(m, 2)));
-			System.out.println("2. X-Wert" + (-(m*n)+x+m*y-(Math.sqrt(Math.pow(distance, 2)+Math.pow(distance, 2)*Math.pow(m, 2)-(Math.pow(n, 2))-(2*m*n*x)-(Math.pow(m, 2)*Math.pow(x, 2))+2*n*y+2*m*x*y-(Math.pow(y, 2)))))/(1+Math.pow(m, 2)));
-			if (followM) {
-				pointX=(-(m*n)+x+m*y+(Math.sqrt(Math.pow(distance, 2)+Math.pow(distance, 2)*Math.pow(m, 2)-(Math.pow(n, 2))-(2*m*n*x)-(Math.pow(m, 2)*Math.pow(x, 2))+2*n*y+2*m*x*y-(Math.pow(y, 2)))))/(1+Math.pow(m, 2));
-			} else {
-				pointX=(-(m*n)+x+m*y-(Math.sqrt(Math.pow(distance, 2)+Math.pow(distance, 2)*Math.pow(m, 2)-(Math.pow(n, 2))-(2*m*n*x)-(Math.pow(m, 2)*Math.pow(x, 2))+2*n*y+2*m*x*y-(Math.pow(y, 2)))))/(1+Math.pow(m, 2));
-			}
-			
-			pointY = m * pointX + n;
-		// wenn die Steigung = unendlich ist
-		} else {
-			System.out.println("HAALLLLO");
-			pointX = x;
-			
-			if (followM) {
-				pointY = y + distance;
-			} else {
-				pointY = y - distance;
-			}
-		}
-
-		return new Point((int)pointX, (int)pointY);
-	}
 }

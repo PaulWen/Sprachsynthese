@@ -20,5 +20,11 @@ public interface AnalysisControllPanelListener {
 	 * Die Methode analysiert die zeitlichen Abstände zwischen Peeks in Millisekunden.
 	 */
 	public void analyseDurationBetweenPeeks();
+
+	/**
+	 * Die Methode öffnet einen FileChooser, welcher es ermöglicht eine WAV-Datei auszuwählen.
+	 * Anschließend wird geguckt, wie häufig das Muster der der ausgwählten WAV-Datei in der aktuellen WAV-Datei vorkommt. 
+	 */
+	public void searchSoundPattern();
 	
 }

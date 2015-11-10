@@ -35,8 +35,6 @@ public class WavFileControllPanel extends JPanel {
 	private JButton attachWavFileButton;
 	private JButton deleteSelectedSamplesButton;
 	
-	private JSpinner zoomSpinner;
-	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
 	/**
@@ -79,23 +77,6 @@ public class WavFileControllPanel extends JPanel {
 			}
 		});
 		
-			//Zoom Konfigurieren
-		zoomSpinner = new JSpinner(new SpinnerNumberModel(model.getCurrentZoomLevel(), 0, Main.MAX_WINDOW_WIDTH_PER_FRAME, Main.MIN_WINDOW_WIDTH_PER_FRAME));
-		zoomSpinner.setToolTipText("Zoom-Level");
-		JSpinner.NumberEditor editor = (JSpinner.NumberEditor)zoomSpinner.getEditor();
-        DecimalFormat format = editor.getFormat();
-        format.setMinimumFractionDigits(1);
-        format.setMaximumFractionDigits(1);
-        editor.getTextField().setHorizontalAlignment(SwingConstants.CENTER);
-		zoomSpinner.addChangeListener( new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				// nur wenn sich der Wert wirklich geändert hat eine Action melden
-				if (((Double)((JSpinner)e.getSource()).getValue()).floatValue() != model.getCurrentZoomLevel()) {
-					listener.zoom(((Double)((JSpinner)e.getSource()).getValue()).floatValue());
-				}
-			}
-		});
-		
 			//JPanel Konfigurieren
 		setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 			//Komponenten Hinzufügen
@@ -103,7 +84,6 @@ public class WavFileControllPanel extends JPanel {
 		add(saveWavFileButton);
 		add(attachWavFileButton);
 		add(deleteSelectedSamplesButton);
-		add(zoomSpinner);
 	}
 	
 	

@@ -56,7 +56,7 @@ public class WavFileDataObject {
 		this.blockAlign = blockAlign;
 		this.validBits = validBits;
 		this.wavFileValues = wavFileValues;
-		inicesOfPeeks = inicesOfPeeks();
+		inicesOfPeeks = indicesOfPeeks();
 	}
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
@@ -67,8 +67,7 @@ public class WavFileDataObject {
 	
 	public void setWavFileValues(double[][] wavFileValues) {
 		this.wavFileValues = wavFileValues;
-		inicesOfPeeks = inicesOfPeeks();
-		System.out.println("hey!");
+		inicesOfPeeks = indicesOfPeeks();
 	}
 	
 	public int getValidBits() {
@@ -119,19 +118,23 @@ public class WavFileDataObject {
 	 * 
 	 * @return ein Array mit allen Indizes der Samples, welche Peeks sind
 	 */
-	private int[] inicesOfPeeks() {
-		ArrayList<Integer> inicesOfPeeks = new ArrayList<Integer>();
+	private int[] indicesOfPeeks() {
+		ArrayList<Integer> indicesOfPeeks = new ArrayList<Integer>();
+		
+		// das erste Sample auf jeden Fall als Peek aufnehmen
+		indicesOfPeeks.add(0);
 		
 		// die Peeks bestimmen
 			// die Variable gibt an, ob die derzeit betrachteten Punkte eine steigende Linie bilden oder eine fallende
-		boolean rising = true;
+			// der Startwert ist abhängig von der vorliegenden Situation
+		boolean rising = wavFileValues[0][0] < wavFileValues[0][1];
 		
 		for (int sampleNumber = 1; sampleNumber < wavFileValues[0].length; sampleNumber++) {
 			if (rising) {
 				// gucken, ob mittlerweile ein fallender Punkt erreicht wurde
 				if (wavFileValues[0][sampleNumber] < wavFileValues[0][sampleNumber - 1]) {
 					// gefundenen Peek merken
-					inicesOfPeeks.add(sampleNumber -1);
+					indicesOfPeeks.add(sampleNumber -1);
 					
 					// Variablen updaten
 					rising = false;
@@ -140,7 +143,7 @@ public class WavFileDataObject {
 				// gucken, ob mittlerweile ein steigender Punkt erreicht wurde
 				if (wavFileValues[0][sampleNumber] > wavFileValues[0][sampleNumber - 1]) {
 					// gefundenen Peek merken
-					inicesOfPeeks.add(sampleNumber -1);
+					indicesOfPeeks.add(sampleNumber -1);
 					
 					// Variablen updaten
 					rising = true;
@@ -150,21 +153,26 @@ public class WavFileDataObject {
 		
 		// die gefundenen Peeks bereinigen um, alle Peeks, welche nur sehr sehr klein sind
 		// ("inicesOfPeeks.size() - 1" damit das letzte Sample der WAV-Datei auf jeden Fall erhalten bleibt!)
-		for (int i = 1; i < inicesOfPeeks.size() - 1; i++) {
+		for (int i = 1; i < indicesOfPeeks.size() - 1; i++) {
 			// wenn der Abstand zwischen zwei Peeks kleiner als 0.1 ist, so wird dieses nicht als Peek gewertet und daher der zweite Peek gelöscht
-			if (Math.abs(wavFileValues[0][inicesOfPeeks.get(i - 1)] - wavFileValues[0][inicesOfPeeks.get(i)]) < 0.01) {
+			if (Math.abs(wavFileValues[0][indicesOfPeeks.get(i - 1)] - wavFileValues[0][indicesOfPeeks.get(i)]) < 0.01) {
 				// zu kleinen Peek löschen
-				inicesOfPeeks.remove(i);
+				indicesOfPeeks.remove(i);
 				
 				// Zählvariable i um 1 zurücksetzen
 				i--;
 			}
 		}
 		
+		// falls das letzte Sample nicht als Peek aufgenommen wurde, dann dieses Sample als Peek aufnehmen
+		if (indicesOfPeeks.get(indicesOfPeeks.size() - 1) != getNumberOfFrames() - 1) {
+			indicesOfPeeks.add(getNumberOfFrames() - 1);
+		}
+		
 		// Ergebnis in ein int[] packen
-		int[] result = new int[inicesOfPeeks.size()];
-		for (int i = 0; i < inicesOfPeeks.size(); i++) {
-			result[i] = inicesOfPeeks.get(i);
+		int[] result = new int[indicesOfPeeks.size()];
+		for (int i = 0; i < indicesOfPeeks.size(); i++) {
+			result[i] = indicesOfPeeks.get(i);
 		}
 		
 		return result;

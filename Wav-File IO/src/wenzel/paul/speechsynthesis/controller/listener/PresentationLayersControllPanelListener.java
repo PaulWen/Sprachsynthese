@@ -40,4 +40,13 @@ public interface PresentationLayersControllPanelListener {
 	 */
 	public void showPolygonsOfPeeksPresentation(boolean show);
 	
+	/**
+	 * Die Methode passt die Präsentation der WAV-Datei an das gewünschte Zoom-Level an.
+	 * 
+	 * Zoomlevel =  die Anzahl an Pixel pro Frame einer Datei, welche das Fenster breit sein soll
+	 * 
+	 * @param zoomValue das Zoomlevel
+	 */
+	public void zoom(float zoomValue);
+	
 }

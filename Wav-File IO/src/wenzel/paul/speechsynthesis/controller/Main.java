@@ -1,8 +1,11 @@
 package wenzel.paul.speechsynthesis.controller;
 
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.Polygon;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import javax.swing.JFileChooser;
@@ -214,6 +217,97 @@ public class Main implements ViewListener {
 		view.repaint();
 	}
 	
+	public void searchSoundPattern() {
+		// WAV-Datei, welche das gesuchte Muster ist, öffnen
+			// FileChooser öffnen und eine WAV-Datei einlesen
+		WavFileDataObject soundPatternWavFile = null;
+		try {
+			soundPatternWavFile = ReadWavFile.openWavFile(startFileChooser(false));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (WavFileException e) {
+			e.printStackTrace();
+		}
+		
+		// das Muster in der aktuellen WAV-Datei suchen
+			// Bedingungen: die Punkte werden normiert --> x * 100; y * 100 
+		int normX = 5;
+		int normY = 100;
+		int tolerance = normX * 2;
+		
+			// 1. Polygone vom Muster erstellen
+		ArrayList<Polygon>	polygonsOfSoundPattern = new ArrayList<Polygon>();
+		
+		// die Polygone der Peeks erstellen
+		for (int i = 0; i < soundPatternWavFile.getInicesOfPeeks().length - 1; i++) {
+			int indexOfPeek = soundPatternWavFile.getInicesOfPeeks()[i];
+			int indexOfNextPeek = soundPatternWavFile.getInicesOfPeeks()[i + 1];
+			// Polygone um die Punkte berechnen
+			polygonsOfSoundPattern.add(Main.calculatePolygonOfTwoPoints(indexOfPeek * normX, (int)(soundPatternWavFile.getWavFileValues()[0][indexOfPeek] * normY),
+					indexOfNextPeek * normX, (int)(soundPatternWavFile.getWavFileValues()[0][indexOfNextPeek] * normY), tolerance));
+		}
+		
+//		// Polygone für alle Samples erstellen
+//		for (int indexOfPeek = 0; indexOfPeek < soundPatternWavFile.getNumberOfFrames() - 1; indexOfPeek++) {
+//			// Polygone um die Punkte berechnen
+//			polygonsOfSoundPattern.add(Main.calculatePolygonOfTwoPoints(indexOfPeek * normX, (int)(soundPatternWavFile.getWavFileValues()[0][indexOfPeek] * normY),
+//					(indexOfPeek + 1) * normX, (int)(soundPatternWavFile.getWavFileValues()[0][indexOfPeek + 1] * normY), tolerance));
+//		}
+		
+			// 2. nach dem Muster in der aktuellen Datei suchen
+		int findingsCounter = 0;
+		double maxQuote = 0;
+		ArrayList<Double> quoten = new ArrayList<Double>();
+		
+		// von jedem Sample in der aktuellen WAV-Datei aus prüfen, ob die darauffolgenden Samples dem gesuchten Muster entsprechen
+		for (int i = 0; i < model.getWavFile().getNumberOfFrames() - soundPatternWavFile.getNumberOfFrames() + 1; i++) {
+			double samplesInPolygonsCounter = 0;
+			
+			for (int j = 0; j < soundPatternWavFile.getNumberOfFrames(); j++) {
+				boolean sampleInPolygons = false;
+				
+				for (Polygon polygon : polygonsOfSoundPattern) {
+					// prüfen, ob das Sample normiert in einem Polygon vorkommt
+					if (polygon.contains((i + j) * normX, (int)(model.getWavFile().getWavFileValues()[0][i + j] * normY))) {
+						sampleInPolygons = true;
+						break;
+					}
+				}
+				
+				if (sampleInPolygons) {
+					samplesInPolygonsCounter++;
+				}
+			}
+			
+			// max Quote finden
+			if (maxQuote < samplesInPolygonsCounter / soundPatternWavFile.getNumberOfFrames()) {
+				maxQuote = samplesInPolygonsCounter / soundPatternWavFile.getNumberOfFrames();
+			}
+			
+			// ein Muster gilt als gefunden, wenn mindestens 90 % der betrachteten Samples innerhalb der Polygone liegen
+			if (samplesInPolygonsCounter / soundPatternWavFile.getNumberOfFrames() >= 0.9) {
+				findingsCounter++;
+				quoten.add(samplesInPolygonsCounter / soundPatternWavFile.getNumberOfFrames());
+			}
+			
+			// die Polygone um einen Frame weiter verschieben
+			for (Polygon polygon : polygonsOfSoundPattern) {
+				for (int j = 0; j < polygon.xpoints.length; j++) {
+					polygon.xpoints[j] += normX;
+				}
+			}
+			System.out.println(i + "/" + model.getWavFile().getNumberOfFrames());
+		}
+		
+			// 3. ausgeben, wie oft das gesuchte Muster gefunden wurde
+		System.out.println("Muster gefunden:" + findingsCounter);
+		System.out.println("Max. Quoten: " + maxQuote);
+		System.out.println("Quoten:");
+		for (double quote : quoten) {
+			System.out.println(quote);
+		}
+	}
+	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
 	
 	private void init() {
@@ -320,6 +414,116 @@ public class Main implements ViewListener {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Die Methode zeichnet ein Polygon um zwei beliebige Punkte.
+	 * Dieses Polygon hat einen gewünschten Abstand von den beiden Punkten.
+	 * Die Methode ist somit in der Lage ein Polygon um eine beliebige Linie zu zeichnen.
+	 * 
+	 * @param x1 x-Wert von Punkt 1
+	 * @param y1 y-Wert von Punkt 1
+	 * @param x2 x-Wert von Punkt 2
+	 * @param y2 y-Wert von Punkt 2
+	 * @param distance der Abstand vom Polygon zu den Punkten
+	 * @return das Polygon, welches die beiden Punkte mit dem gewünschten Abstand umschließt
+	 */
+	public static Polygon calculatePolygonOfTwoPoints(double x1, double y1, double x2, double y2, double distance) {
+		// sicherstellen, dass x1 < x2
+		if (x1 > x2) {
+			// x-Werte Tauschen
+			double tempX = x1;
+			x1 = x2;
+			x2 = tempX;
+			
+			// y-Werte Tauschen
+			double tempY = y1;
+			y1 = y2;
+			y2 = tempY;
+		}
+		
+		
+		int[] xpoints = new int[5];
+		int[] ypoints = new int[5];
+		
+		double m;
+		double m2;
+		// wenn die Steigung nicht 0 ist und es somit die beiden Punkte nicht den gleichen x-Wert haben  
+		if (x2 - x1 != 0) {
+			m = (y2 - y1) / (x2 - x1); // Steigung der Linie 
+			m2 = -1 / m; // orthogonale Steigung zur Linie
+		// wenn die beiden Punkte den gleichen x-Wert haben und daher der Nenner 0 ergeben würde, dann ist die Steigung=unendlich
+		} else {
+			m = Double.POSITIVE_INFINITY; // Steigung der Linie
+			m2 = 0; // orthogonale Steigung zur Linie
+		}
+		
+		Point pOne = Main.calculatePointOnLineWithSpecificDistanceToAnotherPoint(x1, y1, m, distance, false);
+		Point pTwo = Main.calculatePointOnLineWithSpecificDistanceToAnotherPoint(x2, y2, m, distance, true);
+		// 1. Punkt
+		Point p1 = Main.calculatePointOnLineWithSpecificDistanceToAnotherPoint(pOne.getX(), pOne.getY(), m2, distance, true);
+		xpoints[0] = p1.x;
+		ypoints[0] = p1.y;
+		xpoints[4] = p1.x;
+		ypoints[4] = p1.y;
+		
+		// 2. Punkt
+		Point p2 = Main.calculatePointOnLineWithSpecificDistanceToAnotherPoint(pOne.getX(), pOne.getY(), m2, distance, false);
+		xpoints[1] = p2.x;
+		ypoints[1] = p2.y;
+
+		// 3. Punkt
+		Point p3 = Main.calculatePointOnLineWithSpecificDistanceToAnotherPoint(pTwo.getX(), pTwo.getY(), m2, distance, false);
+		xpoints[2] = p3.x;
+		ypoints[2] = p3.y;
+
+		// 4. Punkt
+		Point p4 = Main.calculatePointOnLineWithSpecificDistanceToAnotherPoint(pTwo.getX(), pTwo.getY(), m2, distance, true);
+		xpoints[3] = p4.x;
+		ypoints[3] = p4.y;
+		
+		return new Polygon(xpoints, ypoints, 5);
+	}
+	
+	/**
+	 * Die Methode bestimmt einen Punkt, welcher auf einer Gerade (mit der Steigung m und dem Punkt x, y) liegt und von dem Punkt x, y eine gewünschte Entfernung hat. 
+	 * Außerdem kann bestimmt werden, ob der zu bestimmende Punkt auf der x-Achse links (followM = false) oder auf der x-Achse rechts (upwards = true) neben dem Punkt x, y liegen soll.
+	 * Falls die Steigung m = unendlich, da die Gerade senkrecht verläuft, dann ist der zu bestimmende Punkt auf der y-Achse unter (followM = false) oder auf der y-Achse über (followM = true) dem Punkt x, y. 
+	 * 
+	 * @param x
+	 * @param y
+	 * @param m
+	 * @param distance
+	 * @param followM
+	 * @return
+	 */
+	public static Point calculatePointOnLineWithSpecificDistanceToAnotherPoint(double x, double y, double m, double distance, boolean followM) {
+		double n = y - m * x;
+		
+		double pointX;
+		double pointY;
+		
+		// prüfen, ob die Steigung != unendlich ist
+		if (m != Double.POSITIVE_INFINITY && m != Double.NEGATIVE_INFINITY) {
+			if (followM) {
+				pointX=(-(m*n)+x+m*y+(Math.sqrt(Math.pow(distance, 2)+Math.pow(distance, 2)*Math.pow(m, 2)-(Math.pow(n, 2))-(2*m*n*x)-(Math.pow(m, 2)*Math.pow(x, 2))+2*n*y+2*m*x*y-(Math.pow(y, 2)))))/(1+Math.pow(m, 2));
+			} else {
+				pointX=(-(m*n)+x+m*y-(Math.sqrt(Math.pow(distance, 2)+Math.pow(distance, 2)*Math.pow(m, 2)-(Math.pow(n, 2))-(2*m*n*x)-(Math.pow(m, 2)*Math.pow(x, 2))+2*n*y+2*m*x*y-(Math.pow(y, 2)))))/(1+Math.pow(m, 2));
+			}
+			
+			pointY = m * pointX + n;
+		// wenn die Steigung = unendlich ist
+		} else {
+			pointX = x;
+			
+			if (followM) {
+				pointY = y + distance;
+			} else {
+				pointY = y - distance;
+			}
+		}
+
+		return new Point((int)pointX, (int)pointY);
 	}
 	
 ///////////////////////////////////////////////Innere Klassen////////////////////////////////////////////////	
