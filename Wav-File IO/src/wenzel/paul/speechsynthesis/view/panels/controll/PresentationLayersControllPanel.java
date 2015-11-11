@@ -1,10 +1,13 @@
 package wenzel.paul.speechsynthesis.view.panels.controll;
 
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.text.DecimalFormat;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -34,6 +37,9 @@ public class PresentationLayersControllPanel extends JPanel {
 	private JCheckBox wavFilePresentationCheckBox;
 	private JCheckBox peeksPresentationCheckBox;
 	private JCheckBox polygonsOfPeeksPresentationCheckBox;
+	private JCheckBox secondWavFilePresentationCheckBox;
+
+	private JButton openSecondWavFilePresentationCheckBox;
 	
 	private JSpinner zoomSpinner;
 	
@@ -74,6 +80,23 @@ public class PresentationLayersControllPanel extends JPanel {
 			}
 		});
 		
+		secondWavFilePresentationCheckBox = new JCheckBox("zweite WAV-Datei");
+		secondWavFilePresentationCheckBox.setSelected(model.isShowSecondWavFilePresentation());
+		secondWavFilePresentationCheckBox.addItemListener(new ItemListener() {
+			
+			public void itemStateChanged(ItemEvent e) {
+				listener.showSecondWavFilePresentation(e.getStateChange() == ItemEvent.SELECTED);
+			}
+		});
+		
+		openSecondWavFilePresentationCheckBox = new JButton("öffne zweite WAV-Datei");
+		openSecondWavFilePresentationCheckBox.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				listener.openSecondWavFile();
+			}
+		});
+		
 			//Zoom Konfigurieren
 		zoomSpinner = new JSpinner(new SpinnerNumberModel(model.getCurrentZoomLevel(), 0, Main.MAX_WINDOW_WIDTH_PER_FRAME, Main.MIN_WINDOW_WIDTH_PER_FRAME));
 		zoomSpinner.setToolTipText("Zoom-Level");
@@ -91,13 +114,14 @@ public class PresentationLayersControllPanel extends JPanel {
 			}
 		});
 
-		
 			//JPanel Konfigurieren
 		setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 			//Komponenten Hinzufügen
 		add(wavFilePresentationCheckBox);
 		add(peeksPresentationCheckBox);
 		add(polygonsOfPeeksPresentationCheckBox);
+		add(secondWavFilePresentationCheckBox);
+		add(openSecondWavFilePresentationCheckBox);
 		add(zoomSpinner);
 	}
 	

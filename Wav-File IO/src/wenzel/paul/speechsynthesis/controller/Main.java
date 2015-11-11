@@ -217,6 +217,26 @@ public class Main implements ViewListener {
 		view.repaint();
 	}
 	
+	public void showSecondWavFilePresentation(boolean show) {
+		model.setShowSecondWavFilePresentation(show);
+		view.repaint();
+	}
+	
+	public void openSecondWavFile() {
+		// FileChooser öffnen und eine zweite WAV-Datei einzulesen
+		WavFileDataObject secondWavFile = null;
+		try {
+			secondWavFile = ReadWavFile.openWavFile(startFileChooser(false));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (WavFileException e) {
+			e.printStackTrace();
+		}
+		
+		// Model updaten
+		model.setSecondWavFile(secondWavFile);
+	}
+	
 	public void searchSoundPattern() {
 		// WAV-Datei, welche das gesuchte Muster ist, öffnen
 			// FileChooser öffnen und eine WAV-Datei einlesen
@@ -247,7 +267,7 @@ public class Main implements ViewListener {
 					indexOfNextPeek * normX, (int)(soundPatternWavFile.getWavFileValues()[0][indexOfNextPeek] * normY), tolerance));
 		}
 		
-//		// Polygone für alle Samples erstellen
+//		// Polygone für alle Samples erstellen (= genauer aber schlechtere Performance)
 //		for (int indexOfPeek = 0; indexOfPeek < soundPatternWavFile.getNumberOfFrames() - 1; indexOfPeek++) {
 //			// Polygone um die Punkte berechnen
 //			polygonsOfSoundPattern.add(Main.calculatePolygonOfTwoPoints(indexOfPeek * normX, (int)(soundPatternWavFile.getWavFileValues()[0][indexOfPeek] * normY),
@@ -258,6 +278,8 @@ public class Main implements ViewListener {
 		int findingsCounter = 0;
 		double maxQuote = 0;
 		ArrayList<Double> quoten = new ArrayList<Double>();
+		ArrayList<Integer> startSampleIndex = new ArrayList<Integer>();
+		ArrayList<Integer> endSampleIndex = new ArrayList<Integer>();
 		
 		// von jedem Sample in der aktuellen WAV-Datei aus prüfen, ob die darauffolgenden Samples dem gesuchten Muster entsprechen
 		for (int i = 0; i < model.getWavFile().getNumberOfFrames() - soundPatternWavFile.getNumberOfFrames() + 1; i++) {
@@ -288,6 +310,8 @@ public class Main implements ViewListener {
 			if (samplesInPolygonsCounter / soundPatternWavFile.getNumberOfFrames() >= 0.9) {
 				findingsCounter++;
 				quoten.add(samplesInPolygonsCounter / soundPatternWavFile.getNumberOfFrames());
+				startSampleIndex.add(i);
+				endSampleIndex.add(i + soundPatternWavFile.getNumberOfFrames() - 1);
 			}
 			
 			// die Polygone um einen Frame weiter verschieben
@@ -301,12 +325,19 @@ public class Main implements ViewListener {
 			System.out.println(i + "/" + model.getWavFile().getNumberOfFrames());
 		}
 		
-			// 3. ausgeben, wie oft das gesuchte Muster gefunden wurde
+			// 3. mehrmals an praktisch der gleichen Stelle gefundene Muster rausfiltern
+			// = unter allen Mustern, die sich überschneiden immer das beste gefundene raussuchen
+		
+		
+		
+			// 4. ausgeben, wie oft das gesuchte Muster gefunden wurde und wo jeweils
 		System.out.println("Muster gefunden:" + findingsCounter);
 		System.out.println("Max. Quoten: " + maxQuote);
 		System.out.println("Quoten:");
-		for (double quote : quoten) {
-			System.out.println(quote);
+		for (int i = 0; i < quoten.size(); i++) {
+			System.out.print(quoten.get(i) + ";\t");
+			System.out.print(startSampleIndex.get(i) + " bis ");
+			System.out.println(endSampleIndex.get(i));
 		}
 	}
 	

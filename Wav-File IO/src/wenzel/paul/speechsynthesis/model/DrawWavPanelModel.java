@@ -41,6 +41,16 @@ public interface DrawWavPanelModel {
 	/** Die Methode gibt aus, ob die Polygone von den Peeks in die View eingezeichnet bzw. ausgeblendet werden sollen. */
 	public boolean isShowPolygonsOfPeeksPresentation();
 	
+	/** Die Methode gibt aus, ob eine zweite WAV-Datei angezeigt werden soll. */
+	public boolean isShowSecondWavFilePresentation();
+
+	/**
+	 * Die Methode gibt die zweite WAV-Datei aus, die angezeigt werden soll.
+	 * 
+	 * @return {@link WavFileDataObject} oder Null, wenn es keine zweite Datei gibt
+	 */
+	public WavFileDataObject getSecondWavFile();
+	
 //	/** Die Methode gibt aus, ob die Polygone von allen Samples in die View eingezeichnet bzw. ausgeblendet werden sollen. */
 //	public boolean isShowPolygonsOfSamplesPresentation();
 }

@@ -22,6 +22,7 @@ public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlaye
 	private int pointDiameter;
 	
 	private WavFileDataObject wavFile;
+	private WavFileDataObject secondWavFile;
 	
 	private Color backgroundColor;
 	private Color transparentBackgroundColor;
@@ -33,6 +34,7 @@ public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlaye
 	private boolean showWavFilePresentation;
 	private boolean showPeeksPresentation;
 	private boolean showPolygonsOfPeeksPresentation;
+	private boolean showSecondWavFilePresentation;
 	
 	private boolean loopPlayback;
 	
@@ -56,14 +58,21 @@ public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlaye
 		this.wavFile = wavFile;
 		this.currentZoomLevel = currentZoomLevel;
 		
+		secondWavFile = null;
+		
 		indexOfSamplesToHilight = new HashSet<Integer>();
 		loopPlayback = false;
 		showWavFilePresentation = true;
 		showPeeksPresentation = false;
 		showPolygonsOfPeeksPresentation = false;
+		showSecondWavFilePresentation = false;
 	}
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
+	
+	public void setSecondWavFile(WavFileDataObject secondWavFile) {
+		this.secondWavFile = secondWavFile;
+	}
 	
 	public void setMinWidth(int width) {
 		this.minWidth = width;
@@ -87,6 +96,10 @@ public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlaye
 	
 	public void setShowPolygonsOfPeeksPresentation(boolean showPolygonsOfPeeksPresentation) {
 		this.showPolygonsOfPeeksPresentation = showPolygonsOfPeeksPresentation;
+	}
+	
+	public void setShowSecondWavFilePresentation(boolean showSecondWavFilePresentation) {
+		this.showSecondWavFilePresentation = showSecondWavFilePresentation;
 	}
 	
 	public void setCurrentZoomLevel(float currentZoomLevel) {
@@ -166,6 +179,14 @@ public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlaye
 	
 	public boolean isShowPolygonsOfPeeksPresentation() {
 		return showPolygonsOfPeeksPresentation;
+	}
+	
+	public boolean isShowSecondWavFilePresentation() {
+		return showSecondWavFilePresentation;
+	}
+	
+	public WavFileDataObject getSecondWavFile() {
+		return secondWavFile;
 	}
 	
 	public float getCurrentZoomLevel() {

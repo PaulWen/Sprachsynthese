@@ -21,6 +21,7 @@ import javax.swing.JViewport;
 import wenzel.paul.speechsynthesis.controller.Main;
 import wenzel.paul.speechsynthesis.controller.listener.DrawWavPanelListener;
 import wenzel.paul.speechsynthesis.model.DrawWavPanelModel;
+import wenzel.paul.speechsynthesis.model.dataobjects.WavFileDataObject;
 
 
 /**
@@ -38,8 +39,8 @@ public class DrawWavPanel extends JPanel {
 	private DrawWavPanelModel model;
 	
 	// WAV-Graph
-	/** das Array enthält alle Punkte, welche sich aus den übergebenen Werten ergeben */
-	private ArrayList<Point> points;
+	/** das Array enthält alle Punkte, welche die WAV-Datei darstellen */
+	private ArrayList<Point> wavFilePoints;
 	
 	/** die durch die Maus markierte Fläche innerhalb vom Panel */
 	private Rectangle markedArea;
@@ -50,7 +51,7 @@ public class DrawWavPanel extends JPanel {
 		//Datenfelder initialisieren
 		this.model = model;
 		
-		points = new ArrayList<Point>();
+		wavFilePoints = new ArrayList<Point>();
 		
 		setPreferredSize(new Dimension(model.getMinWidth(), model.getMinHeight()));
 		
@@ -63,7 +64,7 @@ public class DrawWavPanel extends JPanel {
 			public void mouseClicked(MouseEvent event) {
 				// prüfen, ob ein Sample angeklickt wurde
 				int indexOfSample = 0;
-				Iterator<Point> pointsIterator = points.iterator();
+				Iterator<Point> pointsIterator = wavFilePoints.iterator();
 				while (pointsIterator.hasNext()) {
 					Point point = pointsIterator.next();
 					if (event.getPoint().distance(point.getX(), point.getY()) <= model.getPointDiameter()*2) {
@@ -93,7 +94,7 @@ public class DrawWavPanel extends JPanel {
 				ArrayList<Integer> indexOfSelectedSamples = new ArrayList<Integer>();
 				
 				int indexOfSample = 0;
-				Iterator<Point> pointsIterator = points.iterator();
+				Iterator<Point> pointsIterator = wavFilePoints.iterator();
 				while (pointsIterator.hasNext()) {
 					Point point = pointsIterator.next();
 					if (markedArea.contains(point)) {
@@ -173,21 +174,21 @@ public class DrawWavPanel extends JPanel {
 		//falls die komplette WAV-Datei gezeichnet werden soll diese Zeichnen
 		if (model.isShowWavFilePresentation()) {
 			// Punkte neu berechnen
-			calculatePoints();
+			wavFilePoints = calculatePoints(model.getWavFile());
 			
 			// zeichne die Linie
 			g.setColor(model.getLineColor());
-			for (int i = 0; i < points.size() - 1; i++) {
-				if (viewPort.contains(points.get(i)) || viewPort.contains(points.get(i + 1))) {
+			for (int i = 0; i < wavFilePoints.size() - 1; i++) {
+				if (viewPort.contains(wavFilePoints.get(i)) || viewPort.contains(wavFilePoints.get(i + 1))) {
 					g2.setStroke(new BasicStroke(model.getPointDiameter()));
 					int strokeThignessCorrection = model.getPointDiameter() / 2;
-					g2.draw(new Line2D.Float(points.get(i).x + strokeThignessCorrection, points.get(i).y + strokeThignessCorrection, points.get(i + 1).x + strokeThignessCorrection, points.get(i + 1).y + strokeThignessCorrection));
+					g2.draw(new Line2D.Float(wavFilePoints.get(i).x + strokeThignessCorrection, wavFilePoints.get(i).y + strokeThignessCorrection, wavFilePoints.get(i + 1).x + strokeThignessCorrection, wavFilePoints.get(i + 1).y + strokeThignessCorrection));
 				}
 			}
 			
 			// zeichne die einzelnen Punkte
 			g.setColor(model.getPointColor());
-			for (Point point : points) {
+			for (Point point : wavFilePoints) {
 				if (viewPort.contains(point)) {
 					g.fillOval((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
 				}
@@ -196,7 +197,7 @@ public class DrawWavPanel extends JPanel {
 			// zeichne die Punkte, welche hervorgehoben werden sollen
 			g.setColor(model.getHilightColor());
 			for (int index : model.getIndexOfSamplesToHilight()) {
-				Point point = points.get(index);
+				Point point = wavFilePoints.get(index);
 				if (viewPort.contains(point)) {
 					g.fillRect((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
 				}
@@ -220,16 +221,16 @@ public class DrawWavPanel extends JPanel {
 			for (int i = 0; i < model.getWavFile().getInicesOfPeeks().length - 1; i++) {
 				int indexOfPeek = model.getWavFile().getInicesOfPeeks()[i];
 				int indexOfNextPeek = model.getWavFile().getInicesOfPeeks()[i + 1];
-				if (viewPort.contains(points.get(indexOfPeek)) || viewPort.contains(points.get(indexOfNextPeek))) {
-					g2.draw(new Line2D.Float(points.get(indexOfPeek).x + strokeThignessCorrection, points.get(indexOfPeek).y + strokeThignessCorrection, points.get(indexOfNextPeek).x + strokeThignessCorrection, points.get(indexOfNextPeek).y + strokeThignessCorrection));
+				if (viewPort.contains(wavFilePoints.get(indexOfPeek)) || viewPort.contains(wavFilePoints.get(indexOfNextPeek))) {
+					g2.draw(new Line2D.Float(wavFilePoints.get(indexOfPeek).x + strokeThignessCorrection, wavFilePoints.get(indexOfPeek).y + strokeThignessCorrection, wavFilePoints.get(indexOfNextPeek).x + strokeThignessCorrection, wavFilePoints.get(indexOfNextPeek).y + strokeThignessCorrection));
 				}
 			}
 
 			// zeichne die einzelnen Punkte
 			g.setColor(model.getPointColor());
 			for (int indexOfPoint : model.getWavFile().getInicesOfPeeks()) {
-				if (viewPort.contains(points.get(indexOfPoint))) {
-					g.fillOval((int)(points.get(indexOfPoint).getX()), (int)(points.get(indexOfPoint).getY()), model.getPointDiameter(), model.getPointDiameter());
+				if (viewPort.contains(wavFilePoints.get(indexOfPoint))) {
+					g.fillOval((int)(wavFilePoints.get(indexOfPoint).getX()), (int)(wavFilePoints.get(indexOfPoint).getY()), model.getPointDiameter(), model.getPointDiameter());
 				}
 			}
 			
@@ -252,9 +253,9 @@ public class DrawWavPanel extends JPanel {
 			for (int i = 0; i < model.getWavFile().getInicesOfPeeks().length - 1; i++) {
 				int indexOfPeek = model.getWavFile().getInicesOfPeeks()[i];
 				int indexOfNextPeek = model.getWavFile().getInicesOfPeeks()[i + 1];
-				if (viewPort.contains(points.get(indexOfPeek)) || viewPort.contains(points.get(indexOfNextPeek))) {
+				if (viewPort.contains(wavFilePoints.get(indexOfPeek)) || viewPort.contains(wavFilePoints.get(indexOfNextPeek))) {
 					// Polygone um die Punkte zeichnen
-					Polygon polygon = Main.calculatePolygonOfTwoPoints(points.get(indexOfPeek).x, points.get(indexOfPeek).y, points.get(indexOfNextPeek).x, points.get(indexOfNextPeek).y, 20);
+					Polygon polygon = Main.calculatePolygonOfTwoPoints(wavFilePoints.get(indexOfPeek).x, wavFilePoints.get(indexOfPeek).y, wavFilePoints.get(indexOfNextPeek).x, wavFilePoints.get(indexOfNextPeek).y, 20);
 					// Polygon aufgrund der dicke der Linie ungefähr korrigieren für das Zeichnen
 					for (int j = 0; j < polygon.xpoints.length; j++) {
 						polygon.xpoints[j] += strokeThignessCorrection;
@@ -273,13 +274,54 @@ public class DrawWavPanel extends JPanel {
 			// zeichne die einzelnen Punkte
 			g.setColor(model.getPointColor());
 			for (int indexOfPoint : model.getWavFile().getInicesOfPeeks()) {
-				if (viewPort.contains(points.get(indexOfPoint))) {
-					g.fillOval((int)(points.get(indexOfPoint).getX()), (int)(points.get(indexOfPoint).getY()), model.getPointDiameter(), model.getPointDiameter());
+				if (viewPort.contains(wavFilePoints.get(indexOfPoint))) {
+					g.fillOval((int)(wavFilePoints.get(indexOfPoint).getX()), (int)(wavFilePoints.get(indexOfPoint).getY()), model.getPointDiameter(), model.getPointDiameter());
 				}
 			}
 			
 			layerDrawn = true;
 			
+		}
+		
+		//falls die komplette ZWEITE WAV-Datei gezeichnet werden soll diese Zeichnen
+		if (model.isShowSecondWavFilePresentation()) {
+			// wenn davor bereits eine Schicht gezeichnet wurde, dann zuvor eine transparente Schicht einfügen, welche die Schichten etwas trennt voneinander
+			if (layerDrawn) {
+				// zeichne eine transparente Zwischenschicht
+				g.setColor(model.getTransparentBackgroundColor());
+				g.fillRect(0, 0, getWidth(), getHeight());
+			}
+			
+			// Punkte neu berechnen
+			ArrayList<Point> secondWavFilePoints = calculatePoints(model.getSecondWavFile());
+			
+			// zeichne die Linie
+			g.setColor(Color.GRAY);
+			for (int i = 0; i < secondWavFilePoints.size() - 1; i++) {
+				if (viewPort.contains(secondWavFilePoints.get(i)) || viewPort.contains(secondWavFilePoints.get(i + 1))) {
+					g2.setStroke(new BasicStroke(model.getPointDiameter()));
+					int strokeThignessCorrection = model.getPointDiameter() / 2;
+					g2.draw(new Line2D.Float(secondWavFilePoints.get(i).x + strokeThignessCorrection, secondWavFilePoints.get(i).y + strokeThignessCorrection, secondWavFilePoints.get(i + 1).x + strokeThignessCorrection, secondWavFilePoints.get(i + 1).y + strokeThignessCorrection));
+				}
+			}
+			
+			// zeichne die einzelnen Punkte
+			g.setColor(model.getPointColor());
+			for (Point point : secondWavFilePoints) {
+				if (viewPort.contains(point)) {
+					g.fillOval((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
+				}
+			}
+			
+			// zeichne die Punkte, welche hervorgehoben werden sollen
+			g.setColor(model.getHilightColor());
+			for (int index : model.getIndexOfSamplesToHilight()) {
+				Point point = secondWavFilePoints.get(index);
+				if (viewPort.contains(point)) {
+					g.fillRect((int)(point.getX()), (int)(point.getY()), model.getPointDiameter(), model.getPointDiameter());
+				}
+			}
+			layerDrawn = true;
 		}
 		
 		// zeichne das Rechteck, welches die markierte Fläche verdeutlicht, wenn es eine width oder hight > 0 hat
@@ -292,14 +334,15 @@ public class DrawWavPanel extends JPanel {
 	
 /////////////////////////////////////////////Methoden////////////////////////////////////////////////////////
 
-	private void calculatePoints() {
-		// WAV-Graph Punkte neu berechnen
-		points = new ArrayList<Point>();
+	private ArrayList<Point> calculatePoints(WavFileDataObject wavFile) {
+		ArrayList<Point> result = new ArrayList<Point>();
 		
-		for (int i = 0; i < model.getWavFile().getNumberOfFrames(); i++) {
+		for (int i = 0; i < wavFile.getNumberOfFrames(); i++) {
 			// Punkt berechnen
-			points.add(new Point((int)(((double)getWidth() / (double)model.getWavFile().getNumberOfFrames()) * i - (double)model.getPointDiameter() / 2), (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)model.getWavFile().getWavFileValues()[0][i] - (double)model.getPointDiameter() / 2)));
+			result.add(new Point((int)(((double)getWidth() / (double)wavFile.getNumberOfFrames()) * i - (double)model.getPointDiameter() / 2), (int)((double)getHeight()/2 - (double)getHeight()/2 * (double)wavFile.getWavFileValues()[0][i] - (double)model.getPointDiameter() / 2)));
 		}
+		
+		return result;
 	}
 	
 }
