@@ -39,7 +39,8 @@ public class PresentationLayersControllPanel extends JPanel {
 	private JCheckBox polygonsOfPeeksPresentationCheckBox;
 	private JCheckBox secondWavFilePresentationCheckBox;
 
-	private JButton openSecondWavFilePresentationCheckBox;
+	private JButton openSecondWavFilePresentationButton;
+	private JButton swapFirstAndSecondWavFileButton;
 	
 	private JSpinner zoomSpinner;
 	
@@ -89,11 +90,19 @@ public class PresentationLayersControllPanel extends JPanel {
 			}
 		});
 		
-		openSecondWavFilePresentationCheckBox = new JButton("öffne zweite WAV-Datei");
-		openSecondWavFilePresentationCheckBox.addActionListener(new ActionListener() {
+		openSecondWavFilePresentationButton = new JButton("öffne zweite WAV-Datei");
+		openSecondWavFilePresentationButton.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
 				listener.openSecondWavFile();
+			}
+		});
+
+		swapFirstAndSecondWavFileButton = new JButton("erste und Zweite WAV-Datei tauschen");
+		swapFirstAndSecondWavFileButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				listener.swapFirstAndSecondWavFile();
 			}
 		});
 		
@@ -121,7 +130,8 @@ public class PresentationLayersControllPanel extends JPanel {
 		add(peeksPresentationCheckBox);
 		add(polygonsOfPeeksPresentationCheckBox);
 		add(secondWavFilePresentationCheckBox);
-		add(openSecondWavFilePresentationCheckBox);
+		add(openSecondWavFilePresentationButton);
+		add(swapFirstAndSecondWavFileButton);
 		add(zoomSpinner);
 	}
 	

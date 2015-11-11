@@ -70,6 +70,10 @@ public class Model implements ViewModel, WavFileControllPanelModel, WavFilePlaye
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
 	
+	public void setWavFile(WavFileDataObject wavFile) {
+		this.wavFile = wavFile;
+	}
+	
 	public void setSecondWavFile(WavFileDataObject secondWavFile) {
 		this.secondWavFile = secondWavFile;
 	}

@@ -55,6 +55,11 @@ public interface PresentationLayersControllPanelListener {
 	public void openSecondWavFile();
 
 	/**
+	 * Die Methode sorgt dafür, dass die zweite WAV-Datei als erste WAV-Datei gilt und die erste WAV-Datei als zweite WAV-Datei gilt.
+	 */
+	public void swapFirstAndSecondWavFile();
+
+	/**
 	 * Die Methode passt die Präsentation der WAV-Datei an das gewünschte Zoom-Level an.
 	 * 
 	 * Zoomlevel =  die Anzahl an Pixel pro Frame einer Datei, welche das Fenster breit sein soll
@@ -62,6 +67,5 @@ public interface PresentationLayersControllPanelListener {
 	 * @param zoomValue das Zoomlevel
 	 */
 	public void zoom(float zoomValue);
-
 	
 }

@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
@@ -34,6 +35,10 @@ public class WavFileControllPanel extends JPanel {
 	private JButton saveWavFileButton;
 	private JButton attachWavFileButton;
 	private JButton deleteSelectedSamplesButton;
+	private JButton keepSamplesInIntervalButton;
+	
+	private JTextField firstSampleTextField;
+	private JTextField lastSampleTextField;
 	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
@@ -77,6 +82,17 @@ public class WavFileControllPanel extends JPanel {
 			}
 		});
 		
+		keepSamplesInIntervalButton = new JButton("nur Samples im Intervall behalten");
+		keepSamplesInIntervalButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				listener.keepSamplesInInterval(Integer.parseInt(firstSampleTextField.getText()), Integer.parseInt(lastSampleTextField.getText()));
+			}
+		});
+		
+		firstSampleTextField = new JTextField("first");
+		lastSampleTextField = new JTextField("last");
+		
 			//JPanel Konfigurieren
 		setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 			//Komponenten Hinzufügen
@@ -84,6 +100,9 @@ public class WavFileControllPanel extends JPanel {
 		add(saveWavFileButton);
 		add(attachWavFileButton);
 		add(deleteSelectedSamplesButton);
+		add(firstSampleTextField);
+		add(lastSampleTextField);
+		add(keepSamplesInIntervalButton);
 	}
 	
 	

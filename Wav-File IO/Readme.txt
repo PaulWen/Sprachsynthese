@@ -2,11 +2,8 @@ TODOs:
 
 Mustererkennung: 
 	1. die Berechnung der Linien-Polygone kommentieren und dokumentieren!
-	2. Muster erkennen und wiederfinden (mittels einem Bewertungsverfahren) 
-	3. die gefundenen Muster anzeigen können
-		a) Algorithmus, welcher alle mehr als gefundenen Muster rausfiltert und auf einen Fund beschränkt 
-		b) angeben können von welchem Sample bis zu welchem Sample die WAV-Datei behalten werden soll
-	
+	2. die Polygon-Größe für die Höhe und Breite getrennt definieren können
+	3. neue Muster automatisiert finden (= jede mögliche Kombination von Samples als Muster versuchen - wenn es öfter als 3 mal gefunden wird, gilt eine Kombination als Muster)
 	
 Verbesserungsvorschläge:
 	1. fast Peeks (praktisch Sattelpunkt) ausfindig machen und sie bei der Muster suche mit beachten

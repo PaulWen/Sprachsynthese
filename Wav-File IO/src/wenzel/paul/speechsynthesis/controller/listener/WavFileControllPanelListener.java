@@ -35,5 +35,14 @@ public interface WavFileControllPanelListener {
 	 * Die Methode löscht alle derzeit markierten Samples aus der Datei.
 	 */
 	public void deleteMarkedSamples();
+
+	/**
+	 * Die Methode ermöglicht es nur ein gewünschtes Intervall von Samples zu behalten und die restlichen Samples zu löschen.
+	 * Hinweis: firstSample muss < lastSample sein!
+	 * 
+	 * @param firstSample Index vom ersten Sample, welches behalten werden soll (inklusive)
+	 * @param lastSample Index vom letzten Sample, welches behalten werden soll (inklusive)
+	 */
+	public void keepSamplesInInterval(int firstSample, int lastSample);
 	
 }

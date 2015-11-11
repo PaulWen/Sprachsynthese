@@ -134,6 +134,25 @@ public class Main implements ViewListener {
 		view.repaint();
 	}
 	
+	public void keepSamplesInInterval(int firstSample, int lastSample) {
+		double[][] oldWavFileValues = model.getWavFile().getWavFileValues();
+		double[][] newWavFileValues = new double[oldWavFileValues.length][lastSample - firstSample + 1];
+		
+		// gewünschte Samples in das neue Array kopieren
+		int offset = firstSample;
+		for (int i = 0; offset + i <= lastSample; i++) {
+			newWavFileValues[0][i] = oldWavFileValues[0][offset + i];
+		}
+		
+		// die markierten Samples zurücksetzen
+		model.setIndexOfSamplesToHilight(new HashSet<Integer>()); 
+		// die neuen Sample-Werte übergeben 
+		model.getWavFile().setWavFileValues(newWavFileValues);
+		
+		// die View neu zeichnen
+		view.repaint();
+	}
+	
 	public void zoom(float zoomValue) {
 		model.setMinWidth((int)Math.ceil(model.getWavFile().getNumberOfFrames() * zoomValue));
 		model.setCurrentZoomLevel(zoomValue);
@@ -237,6 +256,15 @@ public class Main implements ViewListener {
 		model.setSecondWavFile(secondWavFile);
 	}
 	
+	public void swapFirstAndSecondWavFile() {
+		WavFileDataObject temp = model.getSecondWavFile();
+		model.setSecondWavFile(model.getWavFile());
+		model.setWavFile(temp);
+		
+		// View neu laden
+		view.repaint();
+	}
+	
 	public void searchSoundPattern() {
 		// WAV-Datei, welche das gesuchte Muster ist, öffnen
 			// FileChooser öffnen und eine WAV-Datei einlesen
@@ -267,7 +295,7 @@ public class Main implements ViewListener {
 					indexOfNextPeek * normX, (int)(soundPatternWavFile.getWavFileValues()[0][indexOfNextPeek] * normY), tolerance));
 		}
 		
-//		// Polygone für alle Samples erstellen (= genauer aber schlechtere Performance)
+//		// Polygone für alle Samples erstellen (= genauer aber schlechtere Performance als die obere Variante)
 //		for (int indexOfPeek = 0; indexOfPeek < soundPatternWavFile.getNumberOfFrames() - 1; indexOfPeek++) {
 //			// Polygone um die Punkte berechnen
 //			polygonsOfSoundPattern.add(Main.calculatePolygonOfTwoPoints(indexOfPeek * normX, (int)(soundPatternWavFile.getWavFileValues()[0][indexOfPeek] * normY),
@@ -275,8 +303,6 @@ public class Main implements ViewListener {
 //		}
 		
 			// 2. nach dem Muster in der aktuellen Datei suchen
-		int findingsCounter = 0;
-		double maxQuote = 0;
 		ArrayList<Double> quoten = new ArrayList<Double>();
 		ArrayList<Integer> startSampleIndex = new ArrayList<Integer>();
 		ArrayList<Integer> endSampleIndex = new ArrayList<Integer>();
@@ -301,14 +327,8 @@ public class Main implements ViewListener {
 				}
 			}
 			
-			// max Quote finden
-			if (maxQuote < samplesInPolygonsCounter / soundPatternWavFile.getNumberOfFrames()) {
-				maxQuote = samplesInPolygonsCounter / soundPatternWavFile.getNumberOfFrames();
-			}
-			
 			// ein Muster gilt als gefunden, wenn mindestens 90 % der betrachteten Samples innerhalb der Polygone liegen
 			if (samplesInPolygonsCounter / soundPatternWavFile.getNumberOfFrames() >= 0.9) {
-				findingsCounter++;
 				quoten.add(samplesInPolygonsCounter / soundPatternWavFile.getNumberOfFrames());
 				startSampleIndex.add(i);
 				endSampleIndex.add(i + soundPatternWavFile.getNumberOfFrames() - 1);
@@ -325,14 +345,56 @@ public class Main implements ViewListener {
 			System.out.println(i + "/" + model.getWavFile().getNumberOfFrames());
 		}
 		
-			// 3. mehrmals an praktisch der gleichen Stelle gefundene Muster rausfiltern
-			// = unter allen Mustern, die sich überschneiden immer das beste gefundene raussuchen
+			// 3. alle gefundenen Muster ausgeben, bevor sie gefiltert werden
+		System.out.println("aller Muster ungefiltert:" + quoten.size());
+		System.out.println("Quoten:");
+		for (int i = 0; i < quoten.size(); i++) {
+			System.out.print(quoten.get(i) + ";\t");
+			System.out.print(startSampleIndex.get(i) + " bis ");
+			System.out.println(endSampleIndex.get(i));
+		}
 		
+			// 4. mehrmals an praktisch der gleichen Stelle gefundene Muster rausfiltern
+			// = alle direkt aufeinander folgenden Frames von einzelnen Mustern werden zu einem Muster zusammengefasst
+			// zusammengefasst = das Muster behalten, welches die beste Quote hat und die anderen vergessen
+		for (int i = 0; i < quoten.size(); i++) {
+			int firstPattern = i;
+			int lastPattern = i;
+			
+			// gucken wie viele aufeinander folgende Muster es gibt
+			while (lastPattern + 1 < quoten.size() && startSampleIndex.get(lastPattern) + 1 == startSampleIndex.get(lastPattern + 1)) {
+				lastPattern++;
+			}
+			
+			// wenn mehrere direkt aufeinanderfolgende Muster gefunden wurden, diese auf eins reduzieren
+			if (firstPattern < lastPattern) {
+				// das Muster auswählen, welches behalten werden soll, da es die beste Quote aufweist
+				double maxQuote = 0;
+				int indexOfMaxQuote = firstPattern;
+				
+				for (int j = firstPattern; j < lastPattern + 1; j++) {
+					if (maxQuote < quoten.get(j)) {
+						maxQuote = quoten.get(j);
+						indexOfMaxQuote = j;
+					}
+				}
+				
+				// alle Muster, welche nicht behalten werden sollen löschen aus den ArrayLists
+				// die Liste von hinten durchgehen, da sich ansonsten die Indizes verschieben und dann nicht alle gewünschten Elemente gelöscht werden
+				for (int j = lastPattern; j >= firstPattern; j--) {
+					if (j != indexOfMaxQuote) {
+						quoten.remove(j);
+						startSampleIndex.remove(j);
+						endSampleIndex.remove(j);
+					}
+				}
+			}
+		}
 		
-		
-			// 4. ausgeben, wie oft das gesuchte Muster gefunden wurde und wo jeweils
-		System.out.println("Muster gefunden:" + findingsCounter);
-		System.out.println("Max. Quoten: " + maxQuote);
+			// 5. ausgeben, wie oft das gesuchte Muster gefunden wurde und wo jeweils
+		System.out.println();
+		System.out.println();
+		System.out.println("Muster gefunden:" + quoten.size());
 		System.out.println("Quoten:");
 		for (int i = 0; i < quoten.size(); i++) {
 			System.out.print(quoten.get(i) + ";\t");
