@@ -22,6 +22,7 @@ public class AnalysisControllPanel extends JPanel {
 	
 	private JButton durationBetweenPeeksButton;
 	private JButton searchSoundPatternButton;
+	private JButton findPatternsButton;
 	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
@@ -46,12 +47,21 @@ public class AnalysisControllPanel extends JPanel {
 				listener.searchSoundPattern();
 			}
 		});
+
+		findPatternsButton = new JButton("Sound-Muster ausfindig machen");
+		findPatternsButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				listener.findSoundPatterns();
+			}
+		});
 		
 			//JPanel Konfigurieren
 		setLayout(new FlowLayout(FlowLayout.LEFT, 10, 5));
 			//Komponenten Hinzufügen
 		add(durationBetweenPeeksButton);
 		add(searchSoundPatternButton);
+		add(findPatternsButton);
 	}
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
