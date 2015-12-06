@@ -50,6 +50,12 @@ public class Main implements ViewListener {
 	
 	private WavFilePlayer player;
 	
+	//Debuggen der Performance
+	/** wie viele Muster mit der aktuellen Musterlänge ausprobiert werden */
+	private int triedPatternsWithThisLength;
+	/** wie häufig ein Muster der aktuellen Musterlänge mit der Datei verglichen wurde */
+	private int counterOfComparisons;
+	
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
 	/**
@@ -280,17 +286,48 @@ public class Main implements ViewListener {
 		int maxPatternLength = (int)(model.getWavFile().getSampleRate() * 5);
 		
 		// solange nicht jede erlaubte Mustergröße ausprobiert wurde, weitersuchen  
-		for (int patternLength = minPatternLength; patternLength <= maxPatternLength; patternLength++) {
+//		for (int patternLength = minPatternLength; patternLength <= maxPatternLength; patternLength++) { // mit kleinen Mustern anfangen und größer werden
+		
+		int decrementPatternLength = 1000; // gibt an um wie viel die Mustergröße jedes mal reduziert werden soll
+		for (int patternLength = maxPatternLength; patternLength >= minPatternLength; patternLength-= decrementPatternLength) { // mit großen Mustern anfangen und kleiner werden
+			System.out.println(patternLength + " von "  + maxPatternLength + " wird durchsucht");
+			System.out.println(model.getWavFile().getNumberOfFrames());
+			triedPatternsWithThisLength = 0;
+			counterOfComparisons = 0;
+			
 			// die komplette Datei jedes mal durchsuchen mit jeden möglichen Sample als Startpunkt
 			for (int startSampleIndex = 0; startSampleIndex < model.getWavFile().getNumberOfFrames() - patternLength; startSampleIndex++) {
+				triedPatternsWithThisLength++;
+				
 				WavFileDataObject soundPatternWavFile = new WavFileDataObject(model.getWavFile().getSampleRate(), model.getWavFile().getBlockAlign(), model.getWavFile().getValidBits(), model.getWavFile().getWavFileValues());
 				keepSamplesInInterval(soundPatternWavFile, startSampleIndex, startSampleIndex + patternLength - 1);
 				PatternInWavFileDataObject occurrences = searchSoundPattern(model.getWavFile(), soundPatternWavFile, false);
 				if (occurrences.numberOfOccurrences() > 5) {
 					System.out.println(occurrences.toString());
+					
+					// solange die Schrittweite noch größer 1, die Schrittweite bei einen Fund weiter reduzieren
+					if (decrementPatternLength > 1) {
+						patternLength += decrementPatternLength;
+						decrementPatternLength /= 10;
+					}
+					// falls die Schrittweite unter 1 fallen sollte, dies korrigieren, indem die Schrittweite = 1 gesetzt wird
+					if (decrementPatternLength < 1) {
+						decrementPatternLength = 1;
+					}
 				}
 			}
-		
+			
+			// aufpassen, dass die Mustergröße nicht von 1000 auf direkt 0 fällt und somit nach gar keinen kleinen Mustern gesucht wird
+			// um dies zu verhindern wird die Schrittweite reduziert, so das mindestens einmal die Mindestgröße ausprobiert wird 
+			while (patternLength - decrementPatternLength < minPatternLength && decrementPatternLength > 1) {
+				decrementPatternLength /= 10;
+				// falls die Schrittweite unter 1 fallen sollte, dies korrigieren, indem die Schrittweite = 1 gesetzt wird
+				if (decrementPatternLength < 1) {
+					decrementPatternLength = 1;
+				}
+			}
+			System.out.println("Anzahl der ausprobierten Patterns mit dergleichen Länge: " + triedPatternsWithThisLength);
+			System.out.println("wie oft ein Pattern der aktuellen Länge mit der Datei verglichen wurde: " + counterOfComparisons);
 		}
 	}
 	
@@ -552,10 +589,18 @@ public class Main implements ViewListener {
 		
 		// von jedem Sample in der aktuellen WAV-Datei aus prüfen, ob die darauffolgenden Samples dem gesuchten Muster entsprechen
 		for (int i = 0; i < wavFile.getNumberOfFrames() - pattern.getNumberOfFrames() + 1; i++) {
+			counterOfComparisons++;
+			
 			double samplesInPolygonsCounter = 0;
 			
 			for (int j = 0; j < pattern.getNumberOfFrames(); j++) {
 				boolean sampleInPolygons = false;
+				
+				// prüfen, ob es überhaupt noch möglich ist die gewünschte Quote (= Sample innerhalb der Polygone) zu erfüllen
+				if ((samplesInPolygonsCounter + pattern.getNumberOfFrames() - j) / pattern.getNumberOfFrames() < 0.9) {
+					// wenn die Quote nicht mehr erreicht werden kann, dann die Mustersuche an dieser Stelle beenden!
+					break;
+				}
 				
 				for (Polygon polygon : polygonsOfSoundPattern) {
 					// prüfen, ob das Sample normiert in einem Polygon vorkommt
