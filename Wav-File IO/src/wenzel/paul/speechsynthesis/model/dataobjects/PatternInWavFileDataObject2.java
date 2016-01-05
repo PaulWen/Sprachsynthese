@@ -3,16 +3,25 @@ package wenzel.paul.speechsynthesis.model.dataobjects;
 import java.util.ArrayList;
 
 /**
- * Die Klasse {@link PatternInWavFileDataObject} dient dem Festhalten 
+ * Die Klasse {@link PatternInWavFileDataObject2} dient dem Festhalten, wo ein bestimmtes Muster (Original Pattern)
+ * innerhalb einer WAV-Datei überall gefunden wurde.
  * 
  * 
  * @author Paul Wenzel
  *
  */
-public class PatternInWavFileDataObject {
+public class PatternInWavFileDataObject2 {
 	
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 	
+	/** die Länge vom Pattern */
+	private int patternLength;
+	/** der Index vom ersten Sample des eigentlichen Patterns */
+	private int originalPatternFirstSampleIndex;
+	/** der Index vom letzten Sample des eigentlichen Patterns */
+	private int originalPatternLastSampleIndex;
+	
+	// wo dieses Pattern noch gefunden wurde
 	private ArrayList<Double> precisions = new ArrayList<Double>();
 	private ArrayList<Integer> firstSampleIndices = new ArrayList<Integer>();
 	private ArrayList<Integer> lastSampleIndices = new ArrayList<Integer>();
@@ -20,14 +29,31 @@ public class PatternInWavFileDataObject {
 /////////////////////////////////////////////////Konstruktor/////////////////////////////////////////////////
 	
 	/**
-	 * Der Konstruktor der Klasse {@link PatternInWavFileDataObject}.
+	 * Der Konstruktor der Klasse {@link PatternInWavFileDataObject2}.
+	 * 
+	 * @param firstSampleIndex der Index vom Sample, bei welchem das Muster beginnt (inklusive)
+	 * @param lastSampleIndex der Index vom Sample, bei welchem das Muster endet (inklusive)
 	 */
-	public PatternInWavFileDataObject() {
+	public PatternInWavFileDataObject2(int firstSampleIndex, int lastSampleIndex) {
 		//Datenfelder initialisieren
+		originalPatternFirstSampleIndex = firstSampleIndex;
+		originalPatternLastSampleIndex = lastSampleIndex;
+		patternLength = lastSampleIndex - firstSampleIndex + 1;
 	}
 	
 //////////////////////////////////////////////Getter und Setter//////////////////////////////////////////////
 	
+	public int getOriginalPatternFirstSampleIndex() {
+		return originalPatternFirstSampleIndex;
+	}
+	
+	public int getOriginalPatternLastSampleIndex() {
+		return originalPatternLastSampleIndex;
+	}
+	
+	public int getPatternLength() {
+		return patternLength;
+	}
 	
 ///////////////////////////////////////////////geerbte Methoden//////////////////////////////////////////////
 	
