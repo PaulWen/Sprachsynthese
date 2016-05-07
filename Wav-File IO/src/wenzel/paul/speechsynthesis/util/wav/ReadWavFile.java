@@ -116,7 +116,7 @@ public class ReadWavFile {
 			
 		// Check that the file size matches the number of bytes listed in header
 		if (wavFile.length() != chunkSize + 8) {
-			throw new WavFileException("Header chunk size (" + chunkSize + ") does not match file size ("
+			throw new WavFileException("Header chunk size (" + (chunkSize + 8) + ") does not match file size ("
 					+ wavFile.length() + ")");
 		}
 		
@@ -298,7 +298,6 @@ public class ReadWavFile {
 											int numberOfFrames, double floatScale, double floatOffset,
 											int bytesPerSample) throws IOException
 	{
-											
 		double[][] values = new double[numberOfChannels][numberOfFrames];
 
 		long[] longValues = readSample(wavFileInputStream, bytesPerSample, numberOfFrames, numberOfChannels);

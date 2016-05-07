@@ -1,7 +1,7 @@
 TODOs:
 
 Mustererkennung: 
-	1. herausfinden, warum die Mustersuche ab eine Länge von 3500 solange dauert und wie man dies beschleunigen kann!
+	1. Mustererkennung beschleunigen
 		a) den Algorithmus weiter optimieren:
 			1) nur von jedem zweiten Sample ausgehend das Muster suchen (ggf. nicht machen, da dann das Filtern doppelt gefundener Muster nicht mehr funktioniert!)
 			2) das Sample, welche den Start vom Muster bildet und drei Sample danach nicht in der Suche betrachten

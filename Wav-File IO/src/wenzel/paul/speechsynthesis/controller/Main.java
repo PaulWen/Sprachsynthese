@@ -43,7 +43,7 @@ public class Main implements ViewListener {
 	public static final float MAX_WINDOW_WIDTH_PER_FRAME = 10.0f;
 
 	/** der Pfad, mit welchem der File-Chooser gestartet wird */
-	private String WAV_FILE_PATH = "C:/Users/Wenze/Desktop/Java Workspace/Sprachsynthese/Wav-File IO/res";
+	private String WAV_FILE_PATH = "C:/Users/Wenze/Documents/Programmieren/Java/Java Workspace/Sprachsynthese/Wav-File IO/res";
 
 /////////////////////////////////////////////////Datenfelder/////////////////////////////////////////////////
 	
@@ -288,9 +288,12 @@ public class Main implements ViewListener {
 		// der Key ist: "<Index vom Start-Sample des gesuchten Musters>;<Länge vom gesuchten Muster>"
 		HashMap<String, PatternInWavFileDataObject2> patternsFound = new HashMap<String, PatternInWavFileDataObject2>();
 		
-		// nach Mustern in der aktuellen WAV-Datei suchen, indem die größtmöglichen Muster gebildet werden und nach diesen gesucht wird
-		// bei der suche wird aber auch notiert, sobald ein kleineres Muster (mindestens so groß, wie die Mindestgröße) gefunden wurde
-		// auf diese Weise muss die gesamte Datei nur einmal abgesucht werden
+		/* Vorgehen:
+		 * nach Mustern in der aktuellen WAV-Datei suchen, indem die größtmöglichen Muster gebildet werden und nach diesen gesucht wird
+		 * bei der suche wird aber auch notiert, sobald ein kleineres Muster (mindestens so groß, wie die Mindestgröße) gefunden wurde
+		 * auf diese Weise muss die gesamte Datei nur einmal abgesucht werden
+		 */
+		
 		// Bedingungen: die Punkte werden normiert --> x * 100; y * 100 
 		int normX = 100;
 		int normY = 100;
@@ -298,7 +301,7 @@ public class Main implements ViewListener {
 		
 		
 		
-		// jedes Sample als Start-Sample eines Musters verwenden (wenn von dem Sample ausgehend ein Muster mit der Mindeslänge gebildet werden kann)
+		// jedes Sample als Start-Sample eines Musters verwenden (wenn von dem Sample ausgehend ein Muster mit der Mindestlänge gebildet werden kann)
 		// und nach dem Muster in der kompletten WAV-Datei suchen
 		for (int patternStartSampleIndex = 0; patternStartSampleIndex < model.getWavFile().getNumberOfFrames() - minPatternLength; patternStartSampleIndex++) {
 			System.out.println(patternStartSampleIndex + " von " + (model.getWavFile().getNumberOfFrames() - minPatternLength) + " durchsucht");
@@ -388,73 +391,73 @@ public class Main implements ViewListener {
 					polygon.invalidate();
 				}
 				if (messages) {
-					System.out.println(i + "/" + model.getWavFile().getNumberOfFrames());
+					System.out.println((i + 1) + "/" + (model.getWavFile().getNumberOfFrames() - soundPatternWavFile.getNumberOfFrames() + 1));
 				}
 			}
 			
 		}
 		
-		// 3. alle gefundenen Muster ausgeben, bevor sie gefiltert werden
-		if (messages) {
-			System.out.println(occurrences.toString());
-		}
-		
-		// 4. gleiche Funde mit nur unterschiedlichem Suchmuster rausfiltern
-		
-		// jedes Element aus "patternsFound" angucken und...
-			//... ein neues "PatternInWavFileDataObject", in welches nachfolgend Vorkommnisse drin gespeichert werden...
-			//... zunächst werden alle Vorkommnisse aus dem aktuellen "PatternInWavFileDataObject2" in das neue "PatternInWavFileDataObject" gespeichert
-			// ...anschließend wird für jedes im "PatternInWavFileDataObject" gespeicherte Vorkommnis nachfolgendes gemacht...
-				//...und für jedes Vorkommen ein Element in der "patternsFound"-HashMap raussuchen mit dem Schlüssel = "<Index vom Start-Sample vom Vorkommen>;<länge vom aktuellen Patter (= aktuelles "patternsFound"-Element)>" und mit diesem...
-					// ...und mit diesem alle Vorkommnisse aus dem "PatternInWavFileDataObject2" in das aktuelle "PatternInWavFileDataObject" rüber kopieren
-					// und das PatternInWavFileDataObject2 löschen
-					// auf diese Weise werden alle gleichen Musterfunde in einem "PatternInWavFileDataObject" gebündelt!
-		
-		// TODO: ggf. Schritt 6. besser vor Schritt 5 und Schritt 5 ist vielleicht gar nicht notwendig, da es ja eigentlich nur das Ziel ist die Anzahl an Muster innerhalb einer großen WAV-Datei in Erfahrung zu bringen und zu gucken, mit wie vielen eine gesamte beliebige Datei gebaut werden kann 
-		// TODO: Schritt 5 ggf. so optimieren, dass nicht mehr auf die Quote geachtet wird, sondern das Vorkommen behalten wird, was in der Vorkommen-Folge in der Mitte, gemäß dem Start-Sample-Index, liegt
-		// 5. mehrmals an praktisch der gleichen Stelle gefundene Muster rausfiltern
-		// = alle direkt aufeinander folgenden Frames von einzelnen Mustern werden zu einem Muster zusammengefasst
-		// zusammengefasst = das Muster behalten, welches die beste Quote hat und die anderen vergessen
-		for (int i = 0; i < occurrences.numberOfOccurrences(); i++) {
-			int firstPattern = i;
-			int lastPattern = i;
-			
-			// gucken wie viele aufeinander folgende Muster es gibt
-			while (lastPattern + 1 < occurrences.numberOfOccurrences() && occurrences.getFirstSampleIndex(lastPattern) + 1 == occurrences.getFirstSampleIndex(lastPattern + 1)) {
-				lastPattern++;
-			}
-			
-			// wenn mehrere direkt aufeinanderfolgende Muster gefunden wurden, diese auf eins reduzieren
-			if (firstPattern < lastPattern) {
-				// das Muster auswählen, welches behalten werden soll, da es die beste Quote aufweist
-				double maxQuote = 0;
-				int indexOfMaxQuote = firstPattern;
-				
-				for (int j = firstPattern; j < lastPattern + 1; j++) {
-					if (maxQuote < occurrences.getPrecision(j)) {
-						maxQuote = occurrences.getPrecision(j);
-						indexOfMaxQuote = j;
-					}
-				}
-				
-				// alle Muster, welche nicht behalten werden sollen löschen aus den ArrayLists
-				// die Liste von hinten durchgehen, da sich ansonsten die Indizes verschieben und dann nicht alle gewünschten Elemente gelöscht werden
-				for (int j = lastPattern; j >= firstPattern; j--) {
-					if (j != indexOfMaxQuote) {
-						occurrences.removeOccurrence(j);
-					}
-				}
-			}
-		}
-		
-		// 6. Muster mit dem gleichen Start-Sample aber unterschiedlicher Länge filtern, sodass am Ende nur die "PatternInWavFileDataObject"e verbleiben, am meisten Vorkommnisse haben und es zu jedem Start-Sample maximal ein Muster gibt
-			// für jedes "PatternInWavFileDataObject" jedes Vorkommnis in jedem anderen "PatternInWavFileDataObject" suchen
-				// falls in zwei "PatternInWavFileDataObject"'s welche Muster mit unterschiedlichen Längen verwalten, der gleiche Index vom Start-Sample verwendet wird, nur das "PatternInWavFileDataObject" behalten, welches mehr Vorkomnisse aufweist
-		
-		// 7. ausgeben, wie oft das gesuchte Muster gefunden wurde und wo jeweils
-		if (messages) {
-			System.out.println(occurrences.toString());
-		}
+//		// 3. alle gefundenen Muster ausgeben, bevor sie gefiltert werden
+//		if (messages) {
+//			System.out.println(occurrences.toString());
+//		}
+//		
+//		// 4. gleiche Funde mit nur unterschiedlichem Suchmuster rausfiltern
+//		
+//		// jedes Element aus "patternsFound" angucken und...
+//			//... ein neues "PatternInWavFileDataObject", in welches nachfolgend Vorkommnisse drin gespeichert werden...
+//			//... zunächst werden alle Vorkommnisse aus dem aktuellen "PatternInWavFileDataObject2" in das neue "PatternInWavFileDataObject" gespeichert
+//			// ...anschließend wird für jedes im "PatternInWavFileDataObject" gespeicherte Vorkommnis nachfolgendes gemacht...
+//				//...und für jedes Vorkommen ein Element in der "patternsFound"-HashMap raussuchen mit dem Schlüssel = "<Index vom Start-Sample vom Vorkommen>;<länge vom aktuellen Patter (= aktuelles "patternsFound"-Element)>" und mit diesem...
+//					// ...und mit diesem alle Vorkommnisse aus dem "PatternInWavFileDataObject2" in das aktuelle "PatternInWavFileDataObject" rüber kopieren
+//					// und das PatternInWavFileDataObject2 löschen
+//					// auf diese Weise werden alle gleichen Musterfunde in einem "PatternInWavFileDataObject" gebündelt!
+//		
+//		// TODO: ggf. Schritt 6. besser vor Schritt 5 und Schritt 5 ist vielleicht gar nicht notwendig, da es ja eigentlich nur das Ziel ist die Anzahl an Muster innerhalb einer großen WAV-Datei in Erfahrung zu bringen und zu gucken, mit wie vielen eine gesamte beliebige Datei gebaut werden kann 
+//		// TODO: Schritt 5 ggf. so optimieren, dass nicht mehr auf die Quote geachtet wird, sondern das Vorkommen behalten wird, was in der Vorkommen-Folge in der Mitte, gemäß dem Start-Sample-Index, liegt
+//		// 5. mehrmals an praktisch der gleichen Stelle gefundene Muster rausfiltern
+//		// = alle direkt aufeinander folgenden Frames von einzelnen Mustern werden zu einem Muster zusammengefasst
+//		// zusammengefasst = das Muster behalten, welches die beste Quote hat und die anderen vergessen
+//		for (int i = 0; i < occurrences.numberOfOccurrences(); i++) {
+//			int firstPattern = i;
+//			int lastPattern = i;
+//			
+//			// gucken wie viele aufeinander folgende Muster es gibt
+//			while (lastPattern + 1 < occurrences.numberOfOccurrences() && occurrences.getFirstSampleIndex(lastPattern) + 1 == occurrences.getFirstSampleIndex(lastPattern + 1)) {
+//				lastPattern++;
+//			}
+//			
+//			// wenn mehrere direkt aufeinanderfolgende Muster gefunden wurden, diese auf eins reduzieren
+//			if (firstPattern < lastPattern) {
+//				// das Muster auswählen, welches behalten werden soll, da es die beste Quote aufweist
+//				double maxQuote = 0;
+//				int indexOfMaxQuote = firstPattern;
+//				
+//				for (int j = firstPattern; j < lastPattern + 1; j++) {
+//					if (maxQuote < occurrences.getPrecision(j)) {
+//						maxQuote = occurrences.getPrecision(j);
+//						indexOfMaxQuote = j;
+//					}
+//				}
+//				
+//				// alle Muster, welche nicht behalten werden sollen löschen aus den ArrayLists
+//				// die Liste von hinten durchgehen, da sich ansonsten die Indizes verschieben und dann nicht alle gewünschten Elemente gelöscht werden
+//				for (int j = lastPattern; j >= firstPattern; j--) {
+//					if (j != indexOfMaxQuote) {
+//						occurrences.removeOccurrence(j);
+//					}
+//				}
+//			}
+//		}
+//		
+//		// 6. Muster mit dem gleichen Start-Sample aber unterschiedlicher Länge filtern, sodass am Ende nur die "PatternInWavFileDataObject"e verbleiben, am meisten Vorkommnisse haben und es zu jedem Start-Sample maximal ein Muster gibt
+//			// für jedes "PatternInWavFileDataObject" jedes Vorkommnis in jedem anderen "PatternInWavFileDataObject" suchen
+//				// falls in zwei "PatternInWavFileDataObject"'s welche Muster mit unterschiedlichen Längen verwalten, der gleiche Index vom Start-Sample verwendet wird, nur das "PatternInWavFileDataObject" behalten, welches mehr Vorkomnisse aufweist
+//		
+//		// 7. ausgeben, wie oft das gesuchte Muster gefunden wurde und wo jeweils
+//		if (messages) {
+//			System.out.println(occurrences.toString());
+//		}
 	}
 	
 //////////////////////////////////////////////////Methoden///////////////////////////////////////////////////
